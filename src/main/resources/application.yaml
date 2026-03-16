@@ -16,10 +16,6 @@ spring:
       max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
       keepalive-time: ${DB_POOL_KEEPALIVE_MS:300000}
       leak-detection-threshold: ${DB_POOL_LEAK_DETECTION_MS:0}
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      write-dates-as-timestamps: false
   liquibase:
     enabled: ${SPRING_LIQUIBASE_ENABLED:true}
     change-log: classpath:db/changelog/db.changelog-master.yaml
