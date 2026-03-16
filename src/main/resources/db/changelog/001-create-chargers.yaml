@@ -1,0 +1,111 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-chargers
+      author: codex
+      changes:
+        - createTable:
+            tableName: chargers
+            columns:
+              - column:
+                  name: charger_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: charge_point_identity
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vendor
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: model
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: serial_number
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: site_name
+                  type: varchar(128)
+              - column:
+                  name: ocpp_version
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: firmware_version
+                  type: varchar(64)
+              - column:
+                  name: last_heartbeat_at
+                  type: timestamp with time zone
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: connectors_json
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: configuration_json
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata_json
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: chargers
+            columnNames: charge_point_identity
+            constraintName: uk_chargers_charge_point_identity
+        - addUniqueConstraint:
+            tableName: chargers
+            columnNames: serial_number
+            constraintName: uk_chargers_serial_number
+        - createIndex:
+            tableName: chargers
+            indexName: idx_chargers_status
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            tableName: chargers
+            indexName: idx_chargers_ocpp_version
+            columns:
+              - column:
+                  name: ocpp_version

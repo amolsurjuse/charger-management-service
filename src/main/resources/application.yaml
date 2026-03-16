@@ -1,0 +1,115 @@
+spring:
+  application:
+    name: charger-management-service
+  datasource:
+    url: ${ENV_CHARGER_DATASOURCE_URL:jdbc:postgresql://localhost:5432/charger_management_db}
+    username: ${ENV_CHARGER_DATASOURCE_USERNAME:charger_user}
+    password: ${ENV_CHARGER_DATASOURCE_PASSWORD:charger_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: charger-management-pool
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:16}
+      minimum-idle: ${DB_POOL_MIN_IDLE:4}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:3000}
+      validation-timeout: ${DB_POOL_VALIDATION_TIMEOUT_MS:1000}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:600000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
+      keepalive-time: ${DB_POOL_KEEPALIVE_MS:300000}
+      leak-detection-threshold: ${DB_POOL_LEAK_DETECTION_MS:0}
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+  liquibase:
+    enabled: ${SPRING_LIQUIBASE_ENABLED:true}
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: ${SPRING_LIQUIBASE_DEFAULT_SCHEMA:public}
+    liquibase-schema: ${SPRING_LIQUIBASE_LIQUIBASE_SCHEMA:public}
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  threads:
+    virtual:
+      enabled: ${SPRING_THREADS_VIRTUAL_ENABLED:true}
+
+server:
+  port: ${SERVER_PORT:8086}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    min-response-size: 1024B
+  http2:
+    enabled: true
+  tomcat:
+    mbeanregistry:
+      enabled: true
+    threads:
+      max: ${SERVER_TOMCAT_THREADS_MAX:200}
+      min-spare: ${SERVER_TOMCAT_THREADS_MIN:20}
+    accept-count: ${SERVER_TOMCAT_ACCEPT_COUNT:100}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+app:
+  cors:
+    allowed-origin-patterns:
+      - ${APP_CORS_ALLOWED_ORIGIN_1:http://localhost:4200}
+      - ${APP_CORS_ALLOWED_ORIGIN_2:http://localhost:8080}
+      - ${APP_CORS_ALLOWED_ORIGIN_3:https://driver-portal-dev.electrahub.com:8443}
+      - ${APP_CORS_ALLOWED_ORIGIN_4:https://ocpp-simulator-dev.electrahub.com:8443}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+  observations:
+    annotations:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    com.electrahub.charger: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{36} - %msg%n"
+
+info:
+  app:
+    name: charger-management-service
+    description: Central charger inventory and configuration management
+    javaVersion: 21
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    hikari:
+      maximum-pool-size: 8
+
+logging:
+  level:
+    com.electrahub.charger: DEBUG
