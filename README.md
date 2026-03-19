@@ -19,6 +19,14 @@ Default port: `8086`
 - `PUT /api/v1/chargers/{chargerId}`
 - `PATCH /api/v1/chargers/{chargerId}/status`
 - `DELETE /api/v1/chargers/{chargerId}`
+- `GET /api/v1/admin/enterprises`
+- `POST /api/v1/admin/enterprises`
+- `GET /api/v1/admin/networks`
+- `POST /api/v1/admin/networks`
+- `GET /api/v1/admin/locations`
+- `POST /api/v1/admin/locations`
+- `GET /api/v1/admin/chargers`
+- `POST /api/v1/admin/chargers`
 - `GET /healthz`
 - `GET /readyz`
 - `GET /actuator/health`

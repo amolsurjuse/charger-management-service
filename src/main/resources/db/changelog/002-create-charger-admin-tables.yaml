@@ -1,0 +1,341 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-enterprises-networks-locations-and-inventory
+      author: codex
+      changes:
+        - createTable:
+            tableName: enterprises
+            columns:
+              - column:
+                  name: enterprise_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: country_code
+                  type: varchar(2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: party_id
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timezone
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: enterprises
+            columnNames: country_code, party_id
+            constraintName: uk_enterprises_country_party
+        - createIndex:
+            tableName: enterprises
+            indexName: idx_enterprises_name
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            tableName: enterprises
+            indexName: idx_enterprises_enabled
+            columns:
+              - column:
+                  name: enabled
+        - createIndex:
+            tableName: enterprises
+            indexName: idx_enterprises_updated_at
+            columns:
+              - column:
+                  name: updated_at
+
+        - createTable:
+            tableName: networks
+            columns:
+              - column:
+                  name: network_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: enterprise_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: region
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: operator_email
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: networks
+            baseColumnNames: enterprise_id
+            referencedTableName: enterprises
+            referencedColumnNames: enterprise_id
+            constraintName: fk_networks_enterprise_id
+            onDelete: RESTRICT
+        - addUniqueConstraint:
+            tableName: networks
+            columnNames: enterprise_id, name
+            constraintName: uk_networks_enterprise_name
+        - createIndex:
+            tableName: networks
+            indexName: idx_networks_enterprise_id
+            columns:
+              - column:
+                  name: enterprise_id
+        - createIndex:
+            tableName: networks
+            indexName: idx_networks_name
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            tableName: networks
+            indexName: idx_networks_region
+            columns:
+              - column:
+                  name: region
+        - createIndex:
+            tableName: networks
+            indexName: idx_networks_enabled
+            columns:
+              - column:
+                  name: enabled
+
+        - createTable:
+            tableName: locations
+            columns:
+              - column:
+                  name: location_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: network_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(96)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ocpi_location_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: locations
+            baseColumnNames: network_id
+            referencedTableName: networks
+            referencedColumnNames: network_id
+            constraintName: fk_locations_network_id
+            onDelete: RESTRICT
+        - addUniqueConstraint:
+            tableName: locations
+            columnNames: ocpi_location_id
+            constraintName: uk_locations_ocpi_location_id
+        - createIndex:
+            tableName: locations
+            indexName: idx_locations_network_id
+            columns:
+              - column:
+                  name: network_id
+        - createIndex:
+            tableName: locations
+            indexName: idx_locations_name
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            tableName: locations
+            indexName: idx_locations_city
+            columns:
+              - column:
+                  name: city
+        - createIndex:
+            tableName: locations
+            indexName: idx_locations_enabled
+            columns:
+              - column:
+                  name: enabled
+
+        - createTable:
+            tableName: charger_inventory
+            columns:
+              - column:
+                  name: charger_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: model
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ocpp_version
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_power_kw
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: charger_inventory
+            baseColumnNames: location_id
+            referencedTableName: locations
+            referencedColumnNames: location_id
+            constraintName: fk_charger_inventory_location_id
+            onDelete: RESTRICT
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_location_id
+            columns:
+              - column:
+                  name: location_id
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_display_name
+            columns:
+              - column:
+                  name: display_name
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_model
+            columns:
+              - column:
+                  name: model
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_ocpp_version
+            columns:
+              - column:
+                  name: ocpp_version
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_enabled
+            columns:
+              - column:
+                  name: enabled
+        - createIndex:
+            tableName: charger_inventory
+            indexName: idx_charger_inventory_updated_at
+            columns:
+              - column:
+                  name: updated_at

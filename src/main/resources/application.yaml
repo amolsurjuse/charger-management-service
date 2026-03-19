@@ -54,6 +54,8 @@ app:
       - ${APP_CORS_ALLOWED_ORIGIN_2:http://localhost:8080}
       - ${APP_CORS_ALLOWED_ORIGIN_3:https://driver-portal-dev.electrahub.com:8443}
       - ${APP_CORS_ALLOWED_ORIGIN_4:https://ocpp-simulator-dev.electrahub.com:8443}
+      - ${APP_CORS_ALLOWED_ORIGIN_5:http://localhost:4201}
+      - ${APP_CORS_ALLOWED_ORIGIN_6:https://admin-portal-dev.electrahub.com:8443}
 
 management:
   endpoints:

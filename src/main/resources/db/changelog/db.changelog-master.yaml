@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db/changelog/001-create-chargers.yaml
+  - include:
+      file: db/changelog/002-create-charger-admin-tables.yaml
+  - include:
+      file: db/changelog/003-seed-charger-admin-data.yaml
