@@ -6,108 +6,259 @@ databaseChangeLog:
         - insert:
             tableName: enterprises
             columns:
-              - column: {name: enterprise_id, value: ENT-US-DEV}
-              - column: {name: name, value: Electra Hub Mobility Inc.}
-              - column: {name: country_code, value: US}
-              - column: {name: party_id, value: EHB}
-              - column: {name: timezone, value: America/New_York}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: enterprise_id
+                  value: ENT-US-DEV
+              - column:
+                  name: name
+                  value: Electra Hub Mobility Inc.
+              - column:
+                  name: country_code
+                  value: US
+              - column:
+                  name: party_id
+                  value: EHB
+              - column:
+                  name: timezone
+                  value: America/New_York
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: enterprises
             columns:
-              - column: {name: enterprise_id, value: ENT-EU-DEV}
-              - column: {name: name, value: Electra Hub Europe BV}
-              - column: {name: country_code, value: NL}
-              - column: {name: party_id, value: EHE}
-              - column: {name: timezone, value: Europe/Amsterdam}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: enterprise_id
+                  value: ENT-EU-DEV
+              - column:
+                  name: name
+                  value: Electra Hub Europe BV
+              - column:
+                  name: country_code
+                  value: NL
+              - column:
+                  name: party_id
+                  value: EHE
+              - column:
+                  name: timezone
+                  value: Europe/Amsterdam
+              - column:
+                  name: enabled
+                  valueBoolean: true
 
         - insert:
             tableName: networks
             columns:
-              - column: {name: network_id, value: NW-US-EAST-01}
-              - column: {name: enterprise_id, value: ENT-US-DEV}
-              - column: {name: name, value: US East Public Network}
-              - column: {name: region, value: US-EAST}
-              - column: {name: operator_email, value: network.operator.dev@electrahub.com}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: network_id
+                  value: NW-US-EAST-01
+              - column:
+                  name: enterprise_id
+                  value: ENT-US-DEV
+              - column:
+                  name: name
+                  value: US East Public Network
+              - column:
+                  name: region
+                  value: US-EAST
+              - column:
+                  name: operator_email
+                  value: network.operator.dev@electrahub.com
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: networks
             columns:
-              - column: {name: network_id, value: NW-US-WEST-01}
-              - column: {name: enterprise_id, value: ENT-US-DEV}
-              - column: {name: name, value: US West Highway Network}
-              - column: {name: region, value: US-WEST}
-              - column: {name: operator_email, value: west.network.dev@electrahub.com}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: network_id
+                  value: NW-US-WEST-01
+              - column:
+                  name: enterprise_id
+                  value: ENT-US-DEV
+              - column:
+                  name: name
+                  value: US West Highway Network
+              - column:
+                  name: region
+                  value: US-WEST
+              - column:
+                  name: operator_email
+                  value: west.network.dev@electrahub.com
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: networks
             columns:
-              - column: {name: network_id, value: NW-EU-CENTRAL-01}
-              - column: {name: enterprise_id, value: ENT-EU-DEV}
-              - column: {name: name, value: Amsterdam Downtown Network}
-              - column: {name: region, value: EU-CENTRAL}
-              - column: {name: operator_email, value: eu.network.dev@electrahub.com}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: network_id
+                  value: NW-EU-CENTRAL-01
+              - column:
+                  name: enterprise_id
+                  value: ENT-EU-DEV
+              - column:
+                  name: name
+                  value: Amsterdam Downtown Network
+              - column:
+                  name: region
+                  value: EU-CENTRAL
+              - column:
+                  name: operator_email
+                  value: eu.network.dev@electrahub.com
+              - column:
+                  name: enabled
+                  valueBoolean: true
 
         - insert:
             tableName: locations
             columns:
-              - column: {name: location_id, value: LOC-BOS-001}
-              - column: {name: network_id, value: NW-US-EAST-01}
-              - column: {name: name, value: Boston Seaport Hub}
-              - column: {name: city, value: Boston}
-              - column: {name: address, value: 100 Summer St, Boston, MA}
-              - column: {name: ocpi_location_id, value: US*EHB*LOC*BOS001}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: location_id
+                  value: LOC-BOS-001
+              - column:
+                  name: network_id
+                  value: NW-US-EAST-01
+              - column:
+                  name: name
+                  value: Boston Seaport Hub
+              - column:
+                  name: city
+                  value: Boston
+              - column:
+                  name: address
+                  value: "100 Summer St, Boston, MA"
+              - column:
+                  name: ocpi_location_id
+                  value: "US*EHB*LOC*BOS001"
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: locations
             columns:
-              - column: {name: location_id, value: LOC-SFO-001}
-              - column: {name: network_id, value: NW-US-WEST-01}
-              - column: {name: name, value: San Francisco Marina}
-              - column: {name: city, value: San Francisco}
-              - column: {name: address, value: 290 Marina Blvd, San Francisco, CA}
-              - column: {name: ocpi_location_id, value: US*EHB*LOC*SFO001}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: location_id
+                  value: LOC-SFO-001
+              - column:
+                  name: network_id
+                  value: NW-US-WEST-01
+              - column:
+                  name: name
+                  value: San Francisco Marina
+              - column:
+                  name: city
+                  value: San Francisco
+              - column:
+                  name: address
+                  value: "290 Marina Blvd, San Francisco, CA"
+              - column:
+                  name: ocpi_location_id
+                  value: "US*EHB*LOC*SFO001"
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: locations
             columns:
-              - column: {name: location_id, value: LOC-AMS-001}
-              - column: {name: network_id, value: NW-EU-CENTRAL-01}
-              - column: {name: name, value: Amsterdam Central Station}
-              - column: {name: city, value: Amsterdam}
-              - column: {name: address, value: Stationsplein 15, Amsterdam}
-              - column: {name: ocpi_location_id, value: NL*EHE*LOC*AMS001}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: location_id
+                  value: LOC-AMS-001
+              - column:
+                  name: network_id
+                  value: NW-EU-CENTRAL-01
+              - column:
+                  name: name
+                  value: Amsterdam Central Station
+              - column:
+                  name: city
+                  value: Amsterdam
+              - column:
+                  name: address
+                  value: "Stationsplein 15, Amsterdam"
+              - column:
+                  name: ocpi_location_id
+                  value: "NL*EHE*LOC*AMS001"
+              - column:
+                  name: enabled
+                  valueBoolean: true
 
         - insert:
             tableName: charger_inventory
             columns:
-              - column: {name: charger_id, value: EH-BOS-CHG-001}
-              - column: {name: display_name, value: Boston Hypercharger 1}
-              - column: {name: location_id, value: LOC-BOS-001}
-              - column: {name: model, value: ABB Terra 184}
-              - column: {name: ocpp_version, value: OCPP201}
-              - column: {name: max_power_kw, valueNumeric: 180.00}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: charger_id
+                  value: EH-BOS-CHG-001
+              - column:
+                  name: display_name
+                  value: Boston Hypercharger 1
+              - column:
+                  name: location_id
+                  value: LOC-BOS-001
+              - column:
+                  name: model
+                  value: ABB Terra 184
+              - column:
+                  name: ocpp_version
+                  value: OCPP201
+              - column:
+                  name: max_power_kw
+                  valueNumeric: 180.00
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: charger_inventory
             columns:
-              - column: {name: charger_id, value: EH-BOS-CHG-002}
-              - column: {name: display_name, value: Boston Hypercharger 2}
-              - column: {name: location_id, value: LOC-BOS-001}
-              - column: {name: model, value: Tritium PKM150}
-              - column: {name: ocpp_version, value: OCPP16J}
-              - column: {name: max_power_kw, valueNumeric: 150.00}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: charger_id
+                  value: EH-BOS-CHG-002
+              - column:
+                  name: display_name
+                  value: Boston Hypercharger 2
+              - column:
+                  name: location_id
+                  value: LOC-BOS-001
+              - column:
+                  name: model
+                  value: Tritium PKM150
+              - column:
+                  name: ocpp_version
+                  value: OCPP16J
+              - column:
+                  name: max_power_kw
+                  valueNumeric: 150.00
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
         - insert:
             tableName: charger_inventory
             columns:
-              - column: {name: charger_id, value: EH-SFO-CHG-001}
-              - column: {name: display_name, value: Marina Fast Charger 1}
-              - column: {name: location_id, value: LOC-SFO-001}
-              - column: {name: model, value: Delta UFC200}
-              - column: {name: ocpp_version, value: OCPP201}
-              - column: {name: max_power_kw, valueNumeric: 200.00}
-              - column: {name: enabled, valueBoolean: true}
+              - column:
+                  name: charger_id
+                  value: EH-SFO-CHG-001
+              - column:
+                  name: display_name
+                  value: Marina Fast Charger 1
+              - column:
+                  name: location_id
+                  value: LOC-SFO-001
+              - column:
+                  name: model
+                  value: Delta UFC200
+              - column:
+                  name: ocpp_version
+                  value: OCPP201
+              - column:
+                  name: max_power_kw
+                  valueNumeric: 200.00
+              - column:
+                  name: enabled
+                  valueBoolean: true
