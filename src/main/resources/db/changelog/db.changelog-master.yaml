@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/002-create-charger-admin-tables.yaml
   - include:
       file: db/changelog/003-seed-charger-admin-data.yaml
+  - include:
+      file: db/changelog/005-create-evse-and-connector-admin-tables.yaml
+  - include:
+      file: db/changelog/006-seed-evse-and-connector-admin-data.yaml

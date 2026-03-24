@@ -103,6 +103,48 @@ public class ChargerAdminService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.PagedResponse<ChargerAdminDtos.EvseResponse> listEvses(String search, String chargerId, int limit, int offset) {
+        long total = chargerAdminRepository.countEvses(search, chargerId);
+        List<ChargerAdminDtos.EvseResponse> items = chargerAdminRepository.listEvses(search, chargerId, limit, offset);
+        return paged(items, total, limit, offset);
+    }
+
+    @Transactional
+    public ChargerAdminDtos.EvseResponse createEvse(ChargerAdminDtos.EvseCreateRequest request) {
+        if (!chargerAdminRepository.chargerExists(request.chargerId())) {
+            throw new NotFoundException("Charger '%s' was not found".formatted(request.chargerId()));
+        }
+        String evseId = generateIdentifier("EVSE", request.evseUid());
+        try {
+            return chargerAdminRepository.createEvse(evseId, request);
+        } catch (DuplicateKeyException ex) {
+            throw new ConflictException("EVSE with the same uid already exists");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.PagedResponse<ChargerAdminDtos.ConnectorResponse> listConnectors(String search, String evseId, int limit, int offset) {
+        long total = chargerAdminRepository.countConnectors(search, evseId);
+        List<ChargerAdminDtos.ConnectorResponse> items = chargerAdminRepository.listConnectors(search, evseId, limit, offset);
+        return paged(items, total, limit, offset);
+    }
+
+    @Transactional
+    public ChargerAdminDtos.ConnectorResponse createConnector(ChargerAdminDtos.ConnectorCreateRequest request) {
+        if (!chargerAdminRepository.evseExists(request.evseId())) {
+            throw new NotFoundException("EVSE '%s' was not found".formatted(request.evseId()));
+        }
+        if (chargerAdminRepository.connectorExists(request.connectorId().trim().toUpperCase(Locale.ROOT))) {
+            throw new ConflictException("Connector '%s' already exists".formatted(request.connectorId()));
+        }
+        try {
+            return chargerAdminRepository.createConnector(request);
+        } catch (DuplicateKeyException ex) {
+            throw new ConflictException("Connector '%s' already exists".formatted(request.connectorId()));
+        }
+    }
+
     private <T> ChargerAdminDtos.PagedResponse<T> paged(List<T> items, long total, int limit, int offset) {
         int currentPage = limit <= 0 ? 0 : offset / limit;
         int totalPages = limit <= 0 ? 0 : (int) Math.ceil((double) total / limit);

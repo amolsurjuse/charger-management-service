@@ -132,6 +132,57 @@ public final class ChargerAdminDtos {
     ) {
     }
 
+    public record EvseCreateRequest(
+            @NotBlank @Size(max = 64) String chargerId,
+            @NotBlank @Size(max = 64) String evseUid,
+            @Size(max = 64) String zone,
+            @Size(max = 255) String capabilities,
+            Boolean enabled
+    ) {
+    }
+
+    public record EvseResponse(
+            String evseId,
+            String chargerId,
+            String chargerDisplayName,
+            String evseUid,
+            String zone,
+            int connectorCount,
+            String capabilities,
+            boolean enabled,
+            OffsetDateTime createdAt,
+            OffsetDateTime updatedAt
+    ) {
+    }
+
+    public record ConnectorCreateRequest(
+            @NotBlank @Size(max = 64) String connectorId,
+            @NotBlank @Size(max = 64) String evseId,
+            @NotBlank @Size(max = 32) String standard,
+            @NotBlank @Size(max = 16) String format,
+            @NotBlank @Size(max = 32) String powerType,
+            @NotNull @DecimalMin("0.1") @DecimalMax("1000.0") BigDecimal maxPowerKw,
+            List<@NotBlank @Size(max = 36) String> ocpiTariffIds,
+            Boolean enabled
+    ) {
+    }
+
+    public record ConnectorResponse(
+            String connectorId,
+            String evseId,
+            String evseUid,
+            String chargerId,
+            String standard,
+            String format,
+            String powerType,
+            BigDecimal maxPowerKw,
+            List<String> ocpiTariffIds,
+            boolean enabled,
+            OffsetDateTime createdAt,
+            OffsetDateTime updatedAt
+    ) {
+    }
+
     public record PageRequest(
             @Min(1) @Max(200) int limit,
             @Min(0) int offset

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +37,14 @@ public class ChargerAdminRepository {
 
     public boolean chargerExists(String chargerId) {
         return exists("select count(*) from charger_inventory where charger_id = :id", chargerId);
+    }
+
+    public boolean evseExists(String evseId) {
+        return exists("select count(*) from evse_inventory where evse_id = :id", evseId);
+    }
+
+    public boolean connectorExists(String connectorId) {
+        return exists("select count(*) from connector_inventory where connector_id = :id", connectorId);
     }
 
     public ChargerAdminDtos.EnterpriseResponse createEnterprise(String enterpriseId, ChargerAdminDtos.EnterpriseCreateRequest request) {
@@ -382,6 +392,201 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    public ChargerAdminDtos.EvseResponse createEvse(String evseId, ChargerAdminDtos.EvseCreateRequest request) {
+        Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("evseId", evseId)
+                .addValue("chargerId", request.chargerId())
+                .addValue("evseUid", request.evseUid().trim().toUpperCase())
+                .addValue("zone", request.zone() == null ? null : request.zone().trim())
+                .addValue("capabilities", request.capabilities() == null ? null : request.capabilities().trim().toUpperCase())
+                .addValue("enabled", request.enabled() == null || request.enabled())
+                .addValue("createdAt", now)
+                .addValue("updatedAt", now);
+        jdbcTemplate.update("""
+                insert into evse_inventory (
+                    evse_id,
+                    charger_id,
+                    evse_uid,
+                    zone,
+                    capabilities,
+                    enabled,
+                    created_at,
+                    updated_at
+                ) values (
+                    :evseId,
+                    :chargerId,
+                    :evseUid,
+                    :zone,
+                    :capabilities,
+                    :enabled,
+                    :createdAt,
+                    :updatedAt
+                )
+                """, params);
+        return findEvseById(evseId).orElseThrow();
+    }
+
+    public long countEvses(String search, String chargerId) {
+        StringBuilder sql = new StringBuilder("""
+                select count(*)
+                  from evse_inventory e
+                  join charger_inventory c on c.charger_id = e.charger_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        appendEvseSearch(sql, params, search, chargerId);
+        Long total = jdbcTemplate.queryForObject(sql.toString(), params, Long.class);
+        return total == null ? 0 : total;
+    }
+
+    public List<ChargerAdminDtos.EvseResponse> listEvses(String search, String chargerId, int limit, int offset) {
+        StringBuilder sql = new StringBuilder("""
+                select e.evse_id,
+                       e.charger_id,
+                       c.display_name as charger_display_name,
+                       e.evse_uid,
+                       e.zone,
+                       coalesce(count(ci.connector_id), 0) as connector_count,
+                       e.capabilities,
+                       e.enabled,
+                       e.created_at,
+                       e.updated_at
+                  from evse_inventory e
+                  join charger_inventory c on c.charger_id = e.charger_id
+             left join connector_inventory ci on ci.evse_id = e.evse_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = pagedParams(limit, offset);
+        appendEvseSearch(sql, params, search, chargerId);
+        sql.append("""
+                 group by e.evse_id, e.charger_id, c.display_name, e.evse_uid, e.zone, e.capabilities, e.enabled, e.created_at, e.updated_at
+                 order by e.updated_at desc, e.evse_id asc
+                 limit :limit offset :offset
+                """);
+        return jdbcTemplate.query(sql.toString(), params, evseRowMapper());
+    }
+
+    public Optional<ChargerAdminDtos.EvseResponse> findEvseById(String evseId) {
+        List<ChargerAdminDtos.EvseResponse> rows = jdbcTemplate.query("""
+                select e.evse_id,
+                       e.charger_id,
+                       c.display_name as charger_display_name,
+                       e.evse_uid,
+                       e.zone,
+                       coalesce(count(ci.connector_id), 0) as connector_count,
+                       e.capabilities,
+                       e.enabled,
+                       e.created_at,
+                       e.updated_at
+                  from evse_inventory e
+                  join charger_inventory c on c.charger_id = e.charger_id
+             left join connector_inventory ci on ci.evse_id = e.evse_id
+                 where e.evse_id = :evseId
+              group by e.evse_id, e.charger_id, c.display_name, e.evse_uid, e.zone, e.capabilities, e.enabled, e.created_at, e.updated_at
+                """, new MapSqlParameterSource("evseId", evseId), evseRowMapper());
+        return rows.stream().findFirst();
+    }
+
+    public ChargerAdminDtos.ConnectorResponse createConnector(ChargerAdminDtos.ConnectorCreateRequest request) {
+        Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("connectorId", request.connectorId().trim().toUpperCase())
+                .addValue("evseId", request.evseId())
+                .addValue("standard", request.standard().trim().toUpperCase())
+                .addValue("format", request.format().trim().toUpperCase())
+                .addValue("powerType", request.powerType().trim().toUpperCase())
+                .addValue("maxPowerKw", request.maxPowerKw())
+                .addValue("ocpiTariffIds", serializeTariffIds(request.ocpiTariffIds()))
+                .addValue("enabled", request.enabled() == null || request.enabled())
+                .addValue("createdAt", now)
+                .addValue("updatedAt", now);
+        jdbcTemplate.update("""
+                insert into connector_inventory (
+                    connector_id,
+                    evse_id,
+                    standard,
+                    format,
+                    power_type,
+                    max_power_kw,
+                    ocpi_tariff_ids,
+                    enabled,
+                    created_at,
+                    updated_at
+                ) values (
+                    :connectorId,
+                    :evseId,
+                    :standard,
+                    :format,
+                    :powerType,
+                    :maxPowerKw,
+                    :ocpiTariffIds,
+                    :enabled,
+                    :createdAt,
+                    :updatedAt
+                )
+                """, params);
+        return findConnectorById(request.connectorId().trim().toUpperCase()).orElseThrow();
+    }
+
+    public long countConnectors(String search, String evseId) {
+        StringBuilder sql = new StringBuilder("""
+                select count(*)
+                  from connector_inventory c
+                  join evse_inventory e on e.evse_id = c.evse_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        appendConnectorSearch(sql, params, search, evseId);
+        Long total = jdbcTemplate.queryForObject(sql.toString(), params, Long.class);
+        return total == null ? 0 : total;
+    }
+
+    public List<ChargerAdminDtos.ConnectorResponse> listConnectors(String search, String evseId, int limit, int offset) {
+        StringBuilder sql = new StringBuilder("""
+                select c.connector_id,
+                       c.evse_id,
+                       e.evse_uid,
+                       e.charger_id,
+                       c.standard,
+                       c.format,
+                       c.power_type,
+                       c.max_power_kw,
+                       c.ocpi_tariff_ids,
+                       c.enabled,
+                       c.created_at,
+                       c.updated_at
+                  from connector_inventory c
+                  join evse_inventory e on e.evse_id = c.evse_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = pagedParams(limit, offset);
+        appendConnectorSearch(sql, params, search, evseId);
+        sql.append(" order by c.updated_at desc, c.connector_id asc limit :limit offset :offset");
+        return jdbcTemplate.query(sql.toString(), params, connectorRowMapper());
+    }
+
+    public Optional<ChargerAdminDtos.ConnectorResponse> findConnectorById(String connectorId) {
+        List<ChargerAdminDtos.ConnectorResponse> rows = jdbcTemplate.query("""
+                select c.connector_id,
+                       c.evse_id,
+                       e.evse_uid,
+                       e.charger_id,
+                       c.standard,
+                       c.format,
+                       c.power_type,
+                       c.max_power_kw,
+                       c.ocpi_tariff_ids,
+                       c.enabled,
+                       c.created_at,
+                       c.updated_at
+                  from connector_inventory c
+                  join evse_inventory e on e.evse_id = c.evse_id
+                 where c.connector_id = :connectorId
+                """, new MapSqlParameterSource("connectorId", connectorId), connectorRowMapper());
+        return rows.stream().findFirst();
+    }
+
     private boolean exists(String sql, String id) {
         Integer count = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), Integer.class);
         return count != null && count > 0;
@@ -446,6 +651,47 @@ public class ChargerAdminRepository {
                         or lower(c.model) like :query
                         or lower(c.ocpp_version) like :query
                         or lower(l.name) like :query
+                     )
+                    """);
+            params.addValue("query", like(search));
+        }
+    }
+
+    private void appendEvseSearch(StringBuilder sql, MapSqlParameterSource params, String search, String chargerId) {
+        if (chargerId != null && !chargerId.isBlank()) {
+            sql.append(" and e.charger_id = :chargerId");
+            params.addValue("chargerId", chargerId);
+        }
+        if (search != null && !search.isBlank()) {
+            sql.append("""
+                     and (
+                        lower(e.evse_id) like :query
+                        or lower(e.evse_uid) like :query
+                        or lower(e.zone) like :query
+                        or lower(coalesce(e.capabilities, '')) like :query
+                        or lower(e.charger_id) like :query
+                        or lower(c.display_name) like :query
+                     )
+                    """);
+            params.addValue("query", like(search));
+        }
+    }
+
+    private void appendConnectorSearch(StringBuilder sql, MapSqlParameterSource params, String search, String evseId) {
+        if (evseId != null && !evseId.isBlank()) {
+            sql.append(" and c.evse_id = :evseId");
+            params.addValue("evseId", evseId);
+        }
+        if (search != null && !search.isBlank()) {
+            sql.append("""
+                     and (
+                        lower(c.connector_id) like :query
+                        or lower(c.standard) like :query
+                        or lower(c.format) like :query
+                        or lower(c.power_type) like :query
+                        or lower(e.evse_uid) like :query
+                        or lower(e.charger_id) like :query
+                        or lower(c.ocpi_tariff_ids) like :query
                      )
                     """);
             params.addValue("query", like(search));
@@ -521,6 +767,66 @@ public class ChargerAdminRepository {
                 toOffsetDateTime(rs.getTimestamp("created_at")),
                 toOffsetDateTime(rs.getTimestamp("updated_at"))
         );
+    }
+
+    private RowMapper<ChargerAdminDtos.EvseResponse> evseRowMapper() {
+        return (rs, rowNum) -> new ChargerAdminDtos.EvseResponse(
+                rs.getString("evse_id"),
+                rs.getString("charger_id"),
+                rs.getString("charger_display_name"),
+                rs.getString("evse_uid"),
+                rs.getString("zone"),
+                rs.getInt("connector_count"),
+                rs.getString("capabilities"),
+                rs.getBoolean("enabled"),
+                toOffsetDateTime(rs.getTimestamp("created_at")),
+                toOffsetDateTime(rs.getTimestamp("updated_at"))
+        );
+    }
+
+    private RowMapper<ChargerAdminDtos.ConnectorResponse> connectorRowMapper() {
+        return (rs, rowNum) -> new ChargerAdminDtos.ConnectorResponse(
+                rs.getString("connector_id"),
+                rs.getString("evse_id"),
+                rs.getString("evse_uid"),
+                rs.getString("charger_id"),
+                rs.getString("standard"),
+                rs.getString("format"),
+                rs.getString("power_type"),
+                rs.getBigDecimal("max_power_kw"),
+                deserializeTariffIds(rs.getString("ocpi_tariff_ids")),
+                rs.getBoolean("enabled"),
+                toOffsetDateTime(rs.getTimestamp("created_at")),
+                toOffsetDateTime(rs.getTimestamp("updated_at"))
+        );
+    }
+
+    private String serializeTariffIds(List<String> tariffIds) {
+        if (tariffIds == null || tariffIds.isEmpty()) {
+            return "";
+        }
+
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        for (String tariffId : tariffIds) {
+            if (tariffId == null) {
+                continue;
+            }
+            String value = tariffId.trim();
+            if (!value.isEmpty()) {
+                normalized.add(value);
+            }
+        }
+        return String.join(",", normalized);
+    }
+
+    private List<String> deserializeTariffIds(String rawTariffIds) {
+        if (rawTariffIds == null || rawTariffIds.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(rawTariffIds.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .toList();
     }
 
     private OffsetDateTime toOffsetDateTime(Timestamp timestamp) {

@@ -1,0 +1,149 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-evse-and-connector-admin-tables
+      author: codex
+      changes:
+        - createTable:
+            tableName: evse_inventory
+            columns:
+              - column:
+                  name: evse_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: charger_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: evse_uid
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: zone
+                  type: varchar(64)
+              - column:
+                  name: capabilities
+                  type: varchar(255)
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: evse_inventory
+            baseColumnNames: charger_id
+            referencedTableName: charger_inventory
+            referencedColumnNames: charger_id
+            constraintName: fk_evse_inventory_charger_id
+            onDelete: RESTRICT
+        - addUniqueConstraint:
+            tableName: evse_inventory
+            columnNames: evse_uid
+            constraintName: uk_evse_inventory_evse_uid
+        - createIndex:
+            tableName: evse_inventory
+            indexName: idx_evse_inventory_charger_id
+            columns:
+              - column:
+                  name: charger_id
+        - createIndex:
+            tableName: evse_inventory
+            indexName: idx_evse_inventory_updated_at
+            columns:
+              - column:
+                  name: updated_at
+
+        - createTable:
+            tableName: connector_inventory
+            columns:
+              - column:
+                  name: connector_id
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: evse_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: standard
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: format
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: power_type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_power_kw
+                  type: numeric(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ocpi_tariff_ids
+                  type: text
+                  defaultValue: ""
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: connector_inventory
+            baseColumnNames: evse_id
+            referencedTableName: evse_inventory
+            referencedColumnNames: evse_id
+            constraintName: fk_connector_inventory_evse_id
+            onDelete: RESTRICT
+        - createIndex:
+            tableName: connector_inventory
+            indexName: idx_connector_inventory_evse_id
+            columns:
+              - column:
+                  name: evse_id
+        - createIndex:
+            tableName: connector_inventory
+            indexName: idx_connector_inventory_updated_at
+            columns:
+              - column:
+                  name: updated_at

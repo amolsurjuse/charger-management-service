@@ -107,4 +107,44 @@ public class ChargerAdminController {
     ) {
         return chargerAdminService.createCharger(request);
     }
+
+    @GetMapping("/evses")
+    @Operation(summary = "List EVSEs")
+    public ChargerAdminDtos.PagedResponse<ChargerAdminDtos.EvseResponse> listEvses(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String chargerId,
+            @RequestParam(defaultValue = "25") @Min(1) @Max(200) int limit,
+            @RequestParam(defaultValue = "0") @Min(0) int offset
+    ) {
+        return chargerAdminService.listEvses(search, chargerId, limit, offset);
+    }
+
+    @PostMapping("/evses")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create EVSE")
+    public ChargerAdminDtos.EvseResponse createEvse(
+            @Valid @RequestBody ChargerAdminDtos.EvseCreateRequest request
+    ) {
+        return chargerAdminService.createEvse(request);
+    }
+
+    @GetMapping("/connectors")
+    @Operation(summary = "List connectors")
+    public ChargerAdminDtos.PagedResponse<ChargerAdminDtos.ConnectorResponse> listConnectors(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String evseId,
+            @RequestParam(defaultValue = "25") @Min(1) @Max(200) int limit,
+            @RequestParam(defaultValue = "0") @Min(0) int offset
+    ) {
+        return chargerAdminService.listConnectors(search, evseId, limit, offset);
+    }
+
+    @PostMapping("/connectors")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create connector")
+    public ChargerAdminDtos.ConnectorResponse createConnector(
+            @Valid @RequestBody ChargerAdminDtos.ConnectorCreateRequest request
+    ) {
+        return chargerAdminService.createConnector(request);
+    }
 }
