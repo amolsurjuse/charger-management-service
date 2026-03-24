@@ -1,0 +1,560 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-seed-50-connector-tariff-links
+      author: codex
+      comment: "Seed 50 connectors linked to seeded pricing tariff IDs"
+      changes:
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-001" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000001" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-002" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000002" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-003" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000003" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-004" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000004" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-005" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000005" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-006" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000006" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-007" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000007" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-008" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000008" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-009" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000009" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-010" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000010" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-011" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000011" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-012" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000012" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-013" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000013" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-014" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000014" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-015" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000015" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-016" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000016" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-017" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000017" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-018" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000018" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-019" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000019" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-020" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000020" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-021" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000021" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-022" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000022" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-023" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000023" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-024" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000024" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-025" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000025" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-026" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000026" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-027" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000027" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-028" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000028" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-029" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000029" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-030" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000030" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-031" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000031" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-032" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000032" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-033" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000033" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-034" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000034" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-035" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000035" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-036" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000036" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-037" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000037" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-038" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000038" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-039" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000039" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-040" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000040" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-041" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000041" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-042" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000042" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-043" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000043" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-044" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000044" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-045" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000045" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-046" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000046" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-047" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000047" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-048" }
+              - column: { name: evse_id, value: "EVSE-SFO-001" }
+              - column: { name: standard, value: "CCS1" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 200.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000048" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-049" }
+              - column: { name: evse_id, value: "EVSE-BOS-001" }
+              - column: { name: standard, value: "CCS2" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 180.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000049" }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: connector_inventory
+            columns:
+              - column: { name: connector_id, value: "CON-TARIFF-050" }
+              - column: { name: evse_id, value: "EVSE-BOS-002" }
+              - column: { name: standard, value: "CHADEMO" }
+              - column: { name: format, value: "CABLE" }
+              - column: { name: power_type, value: "DC" }
+              - column: { name: max_power_kw, valueNumeric: 120.00 }
+              - column: { name: ocpi_tariff_ids, value: "9f000000-0000-0000-0000-000000000050" }
+              - column: { name: enabled, valueBoolean: true }
+      rollback:
+        - delete:
+            tableName: connector_inventory
+            where: connector_id like 'CON-TARIFF-%'
