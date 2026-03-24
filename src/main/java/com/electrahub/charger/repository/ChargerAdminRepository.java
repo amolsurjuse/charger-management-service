@@ -1,5 +1,7 @@
 package com.electrahub.charger.repository;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import com.electrahub.charger.api.dto.ChargerAdminDtos;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -16,37 +18,105 @@ import java.util.Optional;
 
 @Repository
 public class ChargerAdminRepository {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChargerAdminRepository.class);
+
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
+    /**
+     * Executes charger admin repository for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param jdbcTemplate input consumed by ChargerAdminRepository.
+     */
     public ChargerAdminRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminRepository#ChargerAdminRepository");
+        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminRepository#ChargerAdminRepository with debug context");
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Executes enterprise exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param enterpriseId input consumed by enterpriseExists.
+     * @return result produced by enterpriseExists.
+     */
     public boolean enterpriseExists(String enterpriseId) {
         return exists("select count(*) from enterprises where enterprise_id = :id", enterpriseId);
     }
 
+    /**
+     * Executes network exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param networkId input consumed by networkExists.
+     * @return result produced by networkExists.
+     */
     public boolean networkExists(String networkId) {
         return exists("select count(*) from networks where network_id = :id", networkId);
     }
 
+    /**
+     * Executes location exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param locationId input consumed by locationExists.
+     * @return result produced by locationExists.
+     */
     public boolean locationExists(String locationId) {
         return exists("select count(*) from locations where location_id = :id", locationId);
     }
 
+    /**
+     * Executes charger exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param chargerId input consumed by chargerExists.
+     * @return result produced by chargerExists.
+     */
     public boolean chargerExists(String chargerId) {
         return exists("select count(*) from charger_inventory where charger_id = :id", chargerId);
     }
 
+    /**
+     * Executes evse exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param evseId input consumed by evseExists.
+     * @return result produced by evseExists.
+     */
     public boolean evseExists(String evseId) {
         return exists("select count(*) from evse_inventory where evse_id = :id", evseId);
     }
 
+    /**
+     * Executes connector exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param connectorId input consumed by connectorExists.
+     * @return result produced by connectorExists.
+     */
     public boolean connectorExists(String connectorId) {
         return exists("select count(*) from connector_inventory where connector_id = :id", connectorId);
     }
 
+    /**
+     * Creates create enterprise for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param enterpriseId input consumed by createEnterprise.
+     * @param request input consumed by createEnterprise.
+     * @return result produced by createEnterprise.
+     */
     public ChargerAdminDtos.EnterpriseResponse createEnterprise(String enterpriseId, ChargerAdminDtos.EnterpriseCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -82,6 +152,14 @@ public class ChargerAdminRepository {
         return findEnterpriseById(enterpriseId).orElseThrow();
     }
 
+    /**
+     * Executes count enterprises for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countEnterprises.
+     * @return result produced by countEnterprises.
+     */
     public long countEnterprises(String search) {
         StringBuilder sql = new StringBuilder("select count(*) from enterprises where 1=1");
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -90,6 +168,16 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list enterprises for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listEnterprises.
+     * @param limit input consumed by listEnterprises.
+     * @param offset input consumed by listEnterprises.
+     * @return result produced by listEnterprises.
+     */
     public List<ChargerAdminDtos.EnterpriseResponse> listEnterprises(String search, int limit, int offset) {
         StringBuilder sql = new StringBuilder("select * from enterprises where 1=1");
         MapSqlParameterSource params = pagedParams(limit, offset);
@@ -98,6 +186,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, enterpriseRowMapper());
     }
 
+    /**
+     * Retrieves find enterprise by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param enterpriseId input consumed by findEnterpriseById.
+     * @return result produced by findEnterpriseById.
+     */
     public Optional<ChargerAdminDtos.EnterpriseResponse> findEnterpriseById(String enterpriseId) {
         List<ChargerAdminDtos.EnterpriseResponse> rows = jdbcTemplate.query(
                 "select * from enterprises where enterprise_id = :enterpriseId",
@@ -107,6 +203,15 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Creates create network for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param networkId input consumed by createNetwork.
+     * @param request input consumed by createNetwork.
+     * @return result produced by createNetwork.
+     */
     public ChargerAdminDtos.NetworkResponse createNetwork(String networkId, ChargerAdminDtos.NetworkCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -142,6 +247,15 @@ public class ChargerAdminRepository {
         return findNetworkById(networkId).orElseThrow();
     }
 
+    /**
+     * Executes count networks for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countNetworks.
+     * @param enterpriseId input consumed by countNetworks.
+     * @return result produced by countNetworks.
+     */
     public long countNetworks(String search, String enterpriseId) {
         StringBuilder sql = new StringBuilder("""
                 select count(*)
@@ -155,6 +269,17 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list networks for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listNetworks.
+     * @param enterpriseId input consumed by listNetworks.
+     * @param limit input consumed by listNetworks.
+     * @param offset input consumed by listNetworks.
+     * @return result produced by listNetworks.
+     */
     public List<ChargerAdminDtos.NetworkResponse> listNetworks(String search, String enterpriseId, int limit, int offset) {
         StringBuilder sql = new StringBuilder("""
                 select n.network_id,
@@ -176,6 +301,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, networkRowMapper());
     }
 
+    /**
+     * Retrieves find network by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param networkId input consumed by findNetworkById.
+     * @return result produced by findNetworkById.
+     */
     public Optional<ChargerAdminDtos.NetworkResponse> findNetworkById(String networkId) {
         List<ChargerAdminDtos.NetworkResponse> rows = jdbcTemplate.query("""
                 select n.network_id,
@@ -194,6 +327,15 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Creates create location for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param locationId input consumed by createLocation.
+     * @param request input consumed by createLocation.
+     * @return result produced by createLocation.
+     */
     public ChargerAdminDtos.LocationResponse createLocation(String locationId, ChargerAdminDtos.LocationCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -232,6 +374,15 @@ public class ChargerAdminRepository {
         return findLocationById(locationId).orElseThrow();
     }
 
+    /**
+     * Executes count locations for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countLocations.
+     * @param networkId input consumed by countLocations.
+     * @return result produced by countLocations.
+     */
     public long countLocations(String search, String networkId) {
         StringBuilder sql = new StringBuilder("""
                 select count(*)
@@ -245,6 +396,17 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list locations for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listLocations.
+     * @param networkId input consumed by listLocations.
+     * @param limit input consumed by listLocations.
+     * @param offset input consumed by listLocations.
+     * @return result produced by listLocations.
+     */
     public List<ChargerAdminDtos.LocationResponse> listLocations(String search, String networkId, int limit, int offset) {
         StringBuilder sql = new StringBuilder("""
                 select l.location_id,
@@ -267,6 +429,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, locationRowMapper());
     }
 
+    /**
+     * Retrieves find location by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param locationId input consumed by findLocationById.
+     * @return result produced by findLocationById.
+     */
     public Optional<ChargerAdminDtos.LocationResponse> findLocationById(String locationId) {
         List<ChargerAdminDtos.LocationResponse> rows = jdbcTemplate.query("""
                 select l.location_id,
@@ -286,6 +456,14 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Creates create charger for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param request input consumed by createCharger.
+     * @return result produced by createCharger.
+     */
     public ChargerAdminDtos.ChargerResponse createCharger(ChargerAdminDtos.ChargerCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -324,6 +502,15 @@ public class ChargerAdminRepository {
         return findChargerById(request.chargerId().trim().toUpperCase()).orElseThrow();
     }
 
+    /**
+     * Executes count chargers for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countChargers.
+     * @param locationId input consumed by countChargers.
+     * @return result produced by countChargers.
+     */
     public long countChargers(String search, String locationId) {
         StringBuilder sql = new StringBuilder("""
                 select count(*)
@@ -339,6 +526,17 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list chargers for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listChargers.
+     * @param locationId input consumed by listChargers.
+     * @param limit input consumed by listChargers.
+     * @param offset input consumed by listChargers.
+     * @return result produced by listChargers.
+     */
     public List<ChargerAdminDtos.ChargerResponse> listChargers(String search, String locationId, int limit, int offset) {
         StringBuilder sql = new StringBuilder("""
                 select c.charger_id,
@@ -367,6 +565,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, chargerRowMapper());
     }
 
+    /**
+     * Retrieves find charger by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param chargerId input consumed by findChargerById.
+     * @return result produced by findChargerById.
+     */
     public Optional<ChargerAdminDtos.ChargerResponse> findChargerById(String chargerId) {
         List<ChargerAdminDtos.ChargerResponse> rows = jdbcTemplate.query("""
                 select c.charger_id,
@@ -392,6 +598,15 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Creates create evse for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param evseId input consumed by createEvse.
+     * @param request input consumed by createEvse.
+     * @return result produced by createEvse.
+     */
     public ChargerAdminDtos.EvseResponse createEvse(String evseId, ChargerAdminDtos.EvseCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -427,6 +642,15 @@ public class ChargerAdminRepository {
         return findEvseById(evseId).orElseThrow();
     }
 
+    /**
+     * Executes count evses for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countEvses.
+     * @param chargerId input consumed by countEvses.
+     * @return result produced by countEvses.
+     */
     public long countEvses(String search, String chargerId) {
         StringBuilder sql = new StringBuilder("""
                 select count(*)
@@ -440,6 +664,17 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list evses for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listEvses.
+     * @param chargerId input consumed by listEvses.
+     * @param limit input consumed by listEvses.
+     * @param offset input consumed by listEvses.
+     * @return result produced by listEvses.
+     */
     public List<ChargerAdminDtos.EvseResponse> listEvses(String search, String chargerId, int limit, int offset) {
         StringBuilder sql = new StringBuilder("""
                 select e.evse_id,
@@ -467,6 +702,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, evseRowMapper());
     }
 
+    /**
+     * Retrieves find evse by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param evseId input consumed by findEvseById.
+     * @return result produced by findEvseById.
+     */
     public Optional<ChargerAdminDtos.EvseResponse> findEvseById(String evseId) {
         List<ChargerAdminDtos.EvseResponse> rows = jdbcTemplate.query("""
                 select e.evse_id,
@@ -488,6 +731,14 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Creates create connector for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param request input consumed by createConnector.
+     * @return result produced by createConnector.
+     */
     public ChargerAdminDtos.ConnectorResponse createConnector(ChargerAdminDtos.ConnectorCreateRequest request) {
         Timestamp now = Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant());
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -529,6 +780,15 @@ public class ChargerAdminRepository {
         return findConnectorById(request.connectorId().trim().toUpperCase()).orElseThrow();
     }
 
+    /**
+     * Executes count connectors for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by countConnectors.
+     * @param evseId input consumed by countConnectors.
+     * @return result produced by countConnectors.
+     */
     public long countConnectors(String search, String evseId) {
         StringBuilder sql = new StringBuilder("""
                 select count(*)
@@ -542,6 +802,17 @@ public class ChargerAdminRepository {
         return total == null ? 0 : total;
     }
 
+    /**
+     * Retrieves list connectors for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param search input consumed by listConnectors.
+     * @param evseId input consumed by listConnectors.
+     * @param limit input consumed by listConnectors.
+     * @param offset input consumed by listConnectors.
+     * @return result produced by listConnectors.
+     */
     public List<ChargerAdminDtos.ConnectorResponse> listConnectors(String search, String evseId, int limit, int offset) {
         StringBuilder sql = new StringBuilder("""
                 select c.connector_id,
@@ -566,6 +837,14 @@ public class ChargerAdminRepository {
         return jdbcTemplate.query(sql.toString(), params, connectorRowMapper());
     }
 
+    /**
+     * Retrieves find connector by id for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param connectorId input consumed by findConnectorById.
+     * @return result produced by findConnectorById.
+     */
     public Optional<ChargerAdminDtos.ConnectorResponse> findConnectorById(String connectorId) {
         List<ChargerAdminDtos.ConnectorResponse> rows = jdbcTemplate.query("""
                 select c.connector_id,
@@ -587,11 +866,29 @@ public class ChargerAdminRepository {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Executes exists for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by exists.
+     * @param id input consumed by exists.
+     * @return result produced by exists.
+     */
     private boolean exists(String sql, String id) {
         Integer count = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), Integer.class);
         return count != null && count > 0;
     }
 
+    /**
+     * Executes append enterprise search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendEnterpriseSearch.
+     * @param params input consumed by appendEnterpriseSearch.
+     * @param search input consumed by appendEnterpriseSearch.
+     */
     private void appendEnterpriseSearch(StringBuilder sql, MapSqlParameterSource params, String search) {
         if (search != null && !search.isBlank()) {
             sql.append(" and (lower(enterprise_id) like :query or lower(name) like :query or lower(party_id) like :query)");
@@ -599,6 +896,16 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes append network search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendNetworkSearch.
+     * @param params input consumed by appendNetworkSearch.
+     * @param search input consumed by appendNetworkSearch.
+     * @param enterpriseId input consumed by appendNetworkSearch.
+     */
     private void appendNetworkSearch(StringBuilder sql, MapSqlParameterSource params, String search, String enterpriseId) {
         if (enterpriseId != null && !enterpriseId.isBlank()) {
             sql.append(" and n.enterprise_id = :enterpriseId");
@@ -618,6 +925,16 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes append location search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendLocationSearch.
+     * @param params input consumed by appendLocationSearch.
+     * @param search input consumed by appendLocationSearch.
+     * @param networkId input consumed by appendLocationSearch.
+     */
     private void appendLocationSearch(StringBuilder sql, MapSqlParameterSource params, String search, String networkId) {
         if (networkId != null && !networkId.isBlank()) {
             sql.append(" and l.network_id = :networkId");
@@ -638,6 +955,16 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes append charger search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendChargerSearch.
+     * @param params input consumed by appendChargerSearch.
+     * @param search input consumed by appendChargerSearch.
+     * @param locationId input consumed by appendChargerSearch.
+     */
     private void appendChargerSearch(StringBuilder sql, MapSqlParameterSource params, String search, String locationId) {
         if (locationId != null && !locationId.isBlank()) {
             sql.append(" and c.location_id = :locationId");
@@ -657,6 +984,16 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes append evse search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendEvseSearch.
+     * @param params input consumed by appendEvseSearch.
+     * @param search input consumed by appendEvseSearch.
+     * @param chargerId input consumed by appendEvseSearch.
+     */
     private void appendEvseSearch(StringBuilder sql, MapSqlParameterSource params, String search, String chargerId) {
         if (chargerId != null && !chargerId.isBlank()) {
             sql.append(" and e.charger_id = :chargerId");
@@ -677,6 +1014,16 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes append connector search for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param sql input consumed by appendConnectorSearch.
+     * @param params input consumed by appendConnectorSearch.
+     * @param search input consumed by appendConnectorSearch.
+     * @param evseId input consumed by appendConnectorSearch.
+     */
     private void appendConnectorSearch(StringBuilder sql, MapSqlParameterSource params, String search, String evseId) {
         if (evseId != null && !evseId.isBlank()) {
             sql.append(" and c.evse_id = :evseId");
@@ -698,16 +1045,40 @@ public class ChargerAdminRepository {
         }
     }
 
+    /**
+     * Executes paged params for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param limit input consumed by pagedParams.
+     * @param offset input consumed by pagedParams.
+     * @return result produced by pagedParams.
+     */
     private MapSqlParameterSource pagedParams(int limit, int offset) {
         return new MapSqlParameterSource()
                 .addValue("limit", limit)
                 .addValue("offset", offset);
     }
 
+    /**
+     * Executes like for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param value input consumed by like.
+     * @return result produced by like.
+     */
     private String like(String value) {
         return "%" + value.trim().toLowerCase() + "%";
     }
 
+    /**
+     * Executes enterprise row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by enterpriseRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.EnterpriseResponse> enterpriseRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.EnterpriseResponse(
                 rs.getString("enterprise_id"),
@@ -721,6 +1092,13 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes network row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by networkRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.NetworkResponse> networkRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.NetworkResponse(
                 rs.getString("network_id"),
@@ -735,6 +1113,13 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes location row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by locationRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.LocationResponse> locationRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.LocationResponse(
                 rs.getString("location_id"),
@@ -750,6 +1135,13 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes charger row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by chargerRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.ChargerResponse> chargerRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.ChargerResponse(
                 rs.getString("charger_id"),
@@ -769,6 +1161,13 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes evse row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by evseRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.EvseResponse> evseRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.EvseResponse(
                 rs.getString("evse_id"),
@@ -784,6 +1183,13 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes connector row mapper for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @return result produced by connectorRowMapper.
+     */
     private RowMapper<ChargerAdminDtos.ConnectorResponse> connectorRowMapper() {
         return (rs, rowNum) -> new ChargerAdminDtos.ConnectorResponse(
                 rs.getString("connector_id"),
@@ -801,6 +1207,14 @@ public class ChargerAdminRepository {
         );
     }
 
+    /**
+     * Executes serialize tariff ids for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param tariffIds input consumed by serializeTariffIds.
+     * @return result produced by serializeTariffIds.
+     */
     private String serializeTariffIds(List<String> tariffIds) {
         if (tariffIds == null || tariffIds.isEmpty()) {
             return "";
@@ -819,6 +1233,14 @@ public class ChargerAdminRepository {
         return String.join(",", normalized);
     }
 
+    /**
+     * Executes deserialize tariff ids for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param rawTariffIds input consumed by deserializeTariffIds.
+     * @return result produced by deserializeTariffIds.
+     */
     private List<String> deserializeTariffIds(String rawTariffIds) {
         if (rawTariffIds == null || rawTariffIds.isBlank()) {
             return List.of();
@@ -829,6 +1251,14 @@ public class ChargerAdminRepository {
                 .toList();
     }
 
+    /**
+     * Executes to offset date time for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.repository`.
+     * @param timestamp input consumed by toOffsetDateTime.
+     * @return result produced by toOffsetDateTime.
+     */
     private OffsetDateTime toOffsetDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant().atOffset(ZoneOffset.UTC);
     }

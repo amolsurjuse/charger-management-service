@@ -1,5 +1,7 @@
 package com.electrahub.charger.api;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import com.electrahub.charger.api.dto.ChargerDtos;
 import com.electrahub.charger.service.ChargerManagementService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,13 +26,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/chargers")
 @Tag(name = "Chargers", description = "Manage charger inventory, lifecycle, and production configuration")
 public class ChargerManagementController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChargerManagementController.class);
+
 
     private final ChargerManagementService chargerManagementService;
 
+    /**
+     * Executes charger management controller for `ChargerManagementController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param chargerManagementService input consumed by ChargerManagementController.
+     */
     public ChargerManagementController(ChargerManagementService chargerManagementService) {
+        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerManagementController#ChargerManagementController");
+        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerManagementController#ChargerManagementController with debug context");
         this.chargerManagementService = chargerManagementService;
     }
 
+    /**
+     * Creates create for `ChargerManagementController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param request input consumed by create.
+     * @return result produced by create.
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new charger with full production settings")
@@ -49,12 +70,28 @@ public class ChargerManagementController {
         return chargerManagementService.list(status, ocppVersion, siteName, enabled);
     }
 
+    /**
+     * Retrieves get for `ChargerManagementController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param chargerId input consumed by get.
+     * @return result produced by get.
+     */
     @GetMapping("/{chargerId}")
     @Operation(summary = "Get a charger and all stored settings")
     public ChargerDtos.ChargerResponse get(@PathVariable String chargerId) {
         return chargerManagementService.get(chargerId);
     }
 
+    /**
+     * Retrieves get settings for `ChargerManagementController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param chargerId input consumed by getSettings.
+     * @return result produced by getSettings.
+     */
     @GetMapping("/{chargerId}/settings")
     @Operation(summary = "Get only the production configuration block for a charger")
     public ChargerDtos.ChargerSettings getSettings(@PathVariable String chargerId) {
@@ -79,6 +116,13 @@ public class ChargerManagementController {
         return chargerManagementService.updateStatus(chargerId, request);
     }
 
+    /**
+     * Removes delete for `ChargerManagementController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param chargerId input consumed by delete.
+     */
     @DeleteMapping("/{chargerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete a charger from inventory")

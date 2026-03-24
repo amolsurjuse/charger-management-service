@@ -1,5 +1,7 @@
 package com.electrahub.charger.api.dto;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -17,8 +19,18 @@ import java.util.List;
 import java.util.Map;
 
 public final class ChargerDtos {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChargerDtos.class);
 
+
+    /**
+     * Executes charger dtos for `ChargerDtos`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api.dto`.
+     */
     private ChargerDtos() {
+        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerDtos#ChargerDtos");
+        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerDtos#ChargerDtos with debug context");
     }
 
     public enum OcppVersion {

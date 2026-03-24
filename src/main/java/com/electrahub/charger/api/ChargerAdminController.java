@@ -1,5 +1,7 @@
 package com.electrahub.charger.api;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import com.electrahub.charger.api.dto.ChargerAdminDtos;
 import com.electrahub.charger.service.ChargerAdminService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,10 +24,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin")
 @Tag(name = "Charger Admin", description = "Admin APIs for enterprise, network, location, and charger management")
 public class ChargerAdminController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChargerAdminController.class);
+
 
     private final ChargerAdminService chargerAdminService;
 
+    /**
+     * Executes charger admin controller for `ChargerAdminController`.
+     *
+     * <p>Detailed behavior: follows the current implementation path and
+     * enforces component-specific rules in `com.electrahub.charger.api`.
+     * @param chargerAdminService input consumed by ChargerAdminController.
+     */
     public ChargerAdminController(ChargerAdminService chargerAdminService) {
+        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminController#ChargerAdminController");
+        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminController#ChargerAdminController with debug context");
         this.chargerAdminService = chargerAdminService;
     }
 
