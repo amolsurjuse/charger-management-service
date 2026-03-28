@@ -115,6 +115,92 @@ public class OcpiConnectorIndexRepository {
         return rows.stream().findFirst();
     }
 
+    public List<OcpiConnectorIndexRow> listConnectorRowsByEvseId(String evseId) {
+        return jdbcTemplate.query("""
+                select c.connector_id,
+                       c.evse_id,
+                       ev.evse_uid,
+                       ev.zone as evse_zone,
+                       ev.capabilities as evse_capabilities,
+                       ev.enabled as evse_enabled,
+                       ch.charger_id,
+                       ch.display_name as charger_display_name,
+                       ch.enabled as charger_enabled,
+                       loc.location_id,
+                       loc.ocpi_location_id,
+                       loc.name as location_name,
+                       loc.city as location_city,
+                       loc.address as location_address,
+                       loc.enabled as location_enabled,
+                       nw.network_id,
+                       nw.name as network_name,
+                       nw.enabled as network_enabled,
+                       ent.enterprise_id,
+                       ent.name as enterprise_name,
+                       ent.country_code,
+                       ent.party_id,
+                       ent.enabled as enterprise_enabled,
+                       c.standard,
+                       c.format,
+                       c.power_type,
+                       c.max_power_kw,
+                       c.ocpi_tariff_ids,
+                       c.enabled as connector_enabled,
+                       greatest(c.updated_at, ev.updated_at, ch.updated_at, loc.updated_at, nw.updated_at, ent.updated_at) as last_updated
+                  from connector_inventory c
+                  join evse_inventory ev on ev.evse_id = c.evse_id
+                  join charger_inventory ch on ch.charger_id = ev.charger_id
+                  join locations loc on loc.location_id = ch.location_id
+                  join networks nw on nw.network_id = loc.network_id
+                  join enterprises ent on ent.enterprise_id = nw.enterprise_id
+                 where c.evse_id = :evseId
+                 order by c.updated_at desc, c.connector_id asc
+                """, new MapSqlParameterSource("evseId", evseId), rowMapper());
+    }
+
+    public List<OcpiConnectorIndexRow> listConnectorRowsByChargerId(String chargerId) {
+        return jdbcTemplate.query("""
+                select c.connector_id,
+                       c.evse_id,
+                       ev.evse_uid,
+                       ev.zone as evse_zone,
+                       ev.capabilities as evse_capabilities,
+                       ev.enabled as evse_enabled,
+                       ch.charger_id,
+                       ch.display_name as charger_display_name,
+                       ch.enabled as charger_enabled,
+                       loc.location_id,
+                       loc.ocpi_location_id,
+                       loc.name as location_name,
+                       loc.city as location_city,
+                       loc.address as location_address,
+                       loc.enabled as location_enabled,
+                       nw.network_id,
+                       nw.name as network_name,
+                       nw.enabled as network_enabled,
+                       ent.enterprise_id,
+                       ent.name as enterprise_name,
+                       ent.country_code,
+                       ent.party_id,
+                       ent.enabled as enterprise_enabled,
+                       c.standard,
+                       c.format,
+                       c.power_type,
+                       c.max_power_kw,
+                       c.ocpi_tariff_ids,
+                       c.enabled as connector_enabled,
+                       greatest(c.updated_at, ev.updated_at, ch.updated_at, loc.updated_at, nw.updated_at, ent.updated_at) as last_updated
+                  from connector_inventory c
+                  join evse_inventory ev on ev.evse_id = c.evse_id
+                  join charger_inventory ch on ch.charger_id = ev.charger_id
+                  join locations loc on loc.location_id = ch.location_id
+                  join networks nw on nw.network_id = loc.network_id
+                  join enterprises ent on ent.enterprise_id = nw.enterprise_id
+                 where ch.charger_id = :chargerId
+                 order by c.updated_at desc, c.connector_id asc
+                """, new MapSqlParameterSource("chargerId", chargerId), rowMapper());
+    }
+
     private RowMapper<OcpiConnectorIndexRow> rowMapper() {
         return (rs, rowNum) -> new OcpiConnectorIndexRow(
                 rs.getString("connector_id"),
@@ -198,4 +284,3 @@ public class OcpiConnectorIndexRepository {
     ) {
     }
 }
-

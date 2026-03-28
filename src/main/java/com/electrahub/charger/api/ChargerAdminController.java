@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -165,5 +166,23 @@ public class ChargerAdminController {
     @Operation(summary = "Reindex OCPI connector search documents to Elasticsearch")
     public ChargerAdminDtos.ConnectorSearchReindexResponse reindexConnectorSearch() {
         return chargerAdminService.reindexConnectorSearch();
+    }
+
+    @PostMapping("/connectors/search/sync/{connectorId}")
+    @Operation(summary = "Sync one connector OCPI search document by connector id")
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByConnectorId(@PathVariable String connectorId) {
+        return chargerAdminService.syncConnectorSearchByConnectorId(connectorId);
+    }
+
+    @PostMapping("/connectors/search/sync/evse/{evseId}")
+    @Operation(summary = "Sync connector OCPI search documents by EVSE id")
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByEvseId(@PathVariable String evseId) {
+        return chargerAdminService.syncConnectorSearchByEvseId(evseId);
+    }
+
+    @PostMapping("/connectors/search/sync/charger/{chargerId}")
+    @Operation(summary = "Sync connector OCPI search documents by charger id")
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByChargerId(@PathVariable String chargerId) {
+        return chargerAdminService.syncConnectorSearchByChargerId(chargerId);
     }
 }

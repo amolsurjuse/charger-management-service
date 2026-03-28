@@ -296,6 +296,69 @@ public class ChargerAdminService {
     }
 
     /**
+     * Syncs exactly one connector document to Elasticsearch using connector id scope.
+     *
+     * @param connectorId connector identifier in admin inventory.
+     * @return summary of selective sync execution.
+     */
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByConnectorId(String connectorId) {
+        String normalizedConnectorId = connectorId == null ? null : connectorId.trim().toUpperCase(Locale.ROOT);
+        OcpiConnectorElasticsearchPublisher.SyncResult result = ocpiConnectorElasticsearchPublisher.syncByConnectorId(normalizedConnectorId);
+        return new ChargerAdminDtos.ConnectorSearchSyncResponse(
+                result.indexName(),
+                result.syncType(),
+                result.syncValue(),
+                result.candidateConnectors(),
+                result.indexedConnectors(),
+                result.failedConnectors(),
+                result.executedAt()
+        );
+    }
+
+    /**
+     * Syncs connector documents belonging to one EVSE to Elasticsearch.
+     *
+     * @param evseId EVSE identifier in admin inventory.
+     * @return summary of selective sync execution.
+     */
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByEvseId(String evseId) {
+        String normalizedEvseId = evseId == null ? null : evseId.trim().toUpperCase(Locale.ROOT);
+        OcpiConnectorElasticsearchPublisher.SyncResult result = ocpiConnectorElasticsearchPublisher.syncByEvseId(normalizedEvseId);
+        return new ChargerAdminDtos.ConnectorSearchSyncResponse(
+                result.indexName(),
+                result.syncType(),
+                result.syncValue(),
+                result.candidateConnectors(),
+                result.indexedConnectors(),
+                result.failedConnectors(),
+                result.executedAt()
+        );
+    }
+
+    /**
+     * Syncs connector documents belonging to one charger to Elasticsearch.
+     *
+     * @param chargerId charger identifier in admin inventory.
+     * @return summary of selective sync execution.
+     */
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.ConnectorSearchSyncResponse syncConnectorSearchByChargerId(String chargerId) {
+        String normalizedChargerId = chargerId == null ? null : chargerId.trim().toUpperCase(Locale.ROOT);
+        OcpiConnectorElasticsearchPublisher.SyncResult result = ocpiConnectorElasticsearchPublisher.syncByChargerId(normalizedChargerId);
+        return new ChargerAdminDtos.ConnectorSearchSyncResponse(
+                result.indexName(),
+                result.syncType(),
+                result.syncValue(),
+                result.candidateConnectors(),
+                result.indexedConnectors(),
+                result.failedConnectors(),
+                result.executedAt()
+        );
+    }
+
+    /**
      * Executes paged for `ChargerAdminService`.
      *
      * <p>Detailed behavior: follows the current implementation path and

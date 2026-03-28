@@ -204,6 +204,17 @@ public final class ChargerAdminDtos {
     ) {
     }
 
+    public record ConnectorSearchSyncResponse(
+            String indexName,
+            String syncType,
+            String syncValue,
+            long candidateConnectors,
+            long indexedConnectors,
+            long failedConnectors,
+            OffsetDateTime executedAt
+    ) {
+    }
+
     public record PageRequest(
             @Min(1) @Max(200) int limit,
             @Min(0) int offset

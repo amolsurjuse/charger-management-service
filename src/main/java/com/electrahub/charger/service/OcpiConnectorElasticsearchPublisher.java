@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Service
 public class OcpiConnectorElasticsearchPublisher {
@@ -33,19 +34,23 @@ public class OcpiConnectorElasticsearchPublisher {
     }
 
     public void publishConnector(String connectorId) {
-        OcpiConnectorDocumentRepository repository = getRepositoryOrNull();
-        if (repository == null) {
-            return;
-        }
+        syncByConnectorId(connectorId);
+    }
 
-        ocpiConnectorIndexRepository.findConnectorRowById(connectorId)
-                .ifPresentOrElse(
-                        row -> {
-                            repository.save(toDocument(row));
-                            log.info("Published OCPI connector {} to Elasticsearch index {}", connectorId, INDEX_NAME);
-                        },
-                        () -> log.warn("Connector {} not found for OCPI Elasticsearch publish", connectorId)
-                );
+    public SyncResult syncByConnectorId(String connectorId) {
+        return syncRows(
+                "CONNECTOR",
+                connectorId,
+                ocpiConnectorIndexRepository.findConnectorRowById(connectorId).stream().toList()
+        );
+    }
+
+    public SyncResult syncByEvseId(String evseId) {
+        return syncRows("EVSE", evseId, ocpiConnectorIndexRepository.listConnectorRowsByEvseId(evseId));
+    }
+
+    public SyncResult syncByChargerId(String chargerId) {
+        return syncRows("CHARGER", chargerId, ocpiConnectorIndexRepository.listConnectorRowsByChargerId(chargerId));
     }
 
     public ReindexResult reindexAllConnectors() {
@@ -73,6 +78,32 @@ public class OcpiConnectorElasticsearchPublisher {
         log.info("Completed OCPI connector reindex to Elasticsearch index {}. total={}, indexed={}, failed={}",
                 INDEX_NAME, total, indexed, failed);
         return new ReindexResult(INDEX_NAME, total, indexed, failed, OffsetDateTime.now());
+    }
+
+    private SyncResult syncRows(String syncType, String syncValue, List<OcpiConnectorIndexRepository.OcpiConnectorIndexRow> rows) {
+        OcpiConnectorDocumentRepository repository = getRepositoryOrNull();
+        long total = rows.size();
+        long indexed = 0;
+        long failed = 0;
+
+        if (repository == null) {
+            return new SyncResult(INDEX_NAME, syncType, syncValue, total, 0, total, OffsetDateTime.now());
+        }
+
+        for (OcpiConnectorIndexRepository.OcpiConnectorIndexRow row : rows) {
+            try {
+                repository.save(toDocument(row));
+                indexed++;
+            } catch (Exception ex) {
+                failed++;
+                log.warn("Failed to index connector {} to Elasticsearch during {} selective sync",
+                        row.connectorId(), syncType, ex);
+            }
+        }
+
+        log.info("Completed {} selective OCPI connector sync for value {}. total={}, indexed={}, failed={}",
+                syncType, syncValue, total, indexed, failed);
+        return new SyncResult(INDEX_NAME, syncType, syncValue, total, indexed, failed, OffsetDateTime.now());
     }
 
     private OcpiConnectorDocumentRepository getRepositoryOrNull() {
@@ -147,5 +178,15 @@ public class OcpiConnectorElasticsearchPublisher {
             OffsetDateTime executedAt
     ) {
     }
-}
 
+    public record SyncResult(
+            String indexName,
+            String syncType,
+            String syncValue,
+            long candidateConnectors,
+            long indexedConnectors,
+            long failedConnectors,
+            OffsetDateTime executedAt
+    ) {
+    }
+}
