@@ -63,6 +63,10 @@ public class OcpiConnectorElasticsearchPublisher {
             return new ReindexResult(INDEX_NAME, total, 0, total, OffsetDateTime.now());
         }
 
+        if (!clearConnectorIndex(repository)) {
+            return new ReindexResult(INDEX_NAME, total, 0, total, OffsetDateTime.now());
+        }
+
         for (int offset = 0; offset < total; offset += BATCH_SIZE) {
             for (OcpiConnectorIndexRepository.OcpiConnectorIndexRow row : ocpiConnectorIndexRepository.listConnectorRows(BATCH_SIZE, offset)) {
                 try {
@@ -78,6 +82,23 @@ public class OcpiConnectorElasticsearchPublisher {
         log.info("Completed OCPI connector reindex to Elasticsearch index {}. total={}, indexed={}, failed={}",
                 INDEX_NAME, total, indexed, failed);
         return new ReindexResult(INDEX_NAME, total, indexed, failed, OffsetDateTime.now());
+    }
+
+    private boolean clearConnectorIndex(OcpiConnectorDocumentRepository repository) {
+        try {
+            long existingDocuments = repository.count();
+            if (existingDocuments > 0) {
+                repository.deleteAll();
+                log.info("Cleared {} stale connector documents from Elasticsearch index {} before reindex",
+                        existingDocuments, INDEX_NAME);
+            } else {
+                log.debug("No existing connector documents found in Elasticsearch index {} before reindex", INDEX_NAME);
+            }
+            return true;
+        } catch (Exception ex) {
+            log.error("Failed to clear Elasticsearch index {} before connector reindex", INDEX_NAME, ex);
+            return false;
+        }
     }
 
     private SyncResult syncRows(String syncType, String syncValue, List<OcpiConnectorIndexRepository.OcpiConnectorIndexRow> rows) {
