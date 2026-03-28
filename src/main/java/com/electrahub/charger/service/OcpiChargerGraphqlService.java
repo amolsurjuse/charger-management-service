@@ -1,19 +1,20 @@
 package com.electrahub.charger.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.transport.rest5_client.low_level.Request;
+import co.elastic.clients.transport.rest5_client.low_level.RequestOptions;
+import co.elastic.clients.transport.rest5_client.low_level.Response;
+import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
 import com.electrahub.charger.config.ElasticsearchProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetchingFieldSelectionSet;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,28 +35,31 @@ public class OcpiChargerGraphqlService {
     private static final int SEARCH_BATCH_SIZE = 500;
 
     private final ElasticsearchProperties elasticsearchProperties;
-    private final ObjectProvider<ElasticsearchClient> elasticsearchClientProvider;
+    private final ObjectProvider<Rest5Client> restClientProvider;
+    private final ObjectMapper objectMapper;
 
     public OcpiChargerGraphqlService(
             ElasticsearchProperties elasticsearchProperties,
-            ObjectProvider<ElasticsearchClient> elasticsearchClientProvider
+            ObjectProvider<Rest5Client> restClientProvider,
+            ObjectMapper objectMapper
     ) {
         this.elasticsearchProperties = elasticsearchProperties;
-        this.elasticsearchClientProvider = elasticsearchClientProvider;
+        this.restClientProvider = restClientProvider;
+        this.objectMapper = objectMapper;
     }
 
     public List<OcpiChargerGraphqlDto> listChargers(
             OcpiChargerFilter filter,
             DataFetchingFieldSelectionSet selectionSet
     ) {
-        ElasticsearchClient client = elasticsearchClient();
+        Rest5Client client = elasticsearchClient();
         if (client == null) {
             return List.of();
         }
 
         int limit = normalizeLimit(filter.limit());
         int offset = normalizeOffset(filter.offset());
-        Query baseQuery = buildBaseQuery(filter);
+        Map<String, Object> baseQuery = buildBaseQuery(filter);
 
         List<String> pageChargerIds;
         try {
@@ -117,11 +121,11 @@ public class OcpiChargerGraphqlService {
         return chargers.getFirst();
     }
 
-    private ElasticsearchClient elasticsearchClient() {
+    private Rest5Client elasticsearchClient() {
         if (!elasticsearchProperties.isEnabled()) {
             return null;
         }
-        return elasticsearchClientProvider.getIfAvailable();
+        return restClientProvider.getIfAvailable();
     }
 
     private int normalizeLimit(Integer limit) {
@@ -138,78 +142,91 @@ public class OcpiChargerGraphqlService {
         return Math.max(0, offset);
     }
 
-    private Query buildBaseQuery(OcpiChargerFilter filter) {
-        BoolQuery.Builder bool = new BoolQuery.Builder();
-        boolean hasClause = false;
+    private Map<String, Object> buildBaseQuery(OcpiChargerFilter filter) {
+        List<Map<String, Object>> filters = new ArrayList<>();
 
-        hasClause |= addKeywordFilter(bool, "countryCode", filter.countryCode(), true);
-        hasClause |= addKeywordFilter(bool, "partyId", filter.partyId(), true);
-        hasClause |= addKeywordFilter(bool, "location.ocpiLocationId", filter.ocpiLocationId(), true);
-        hasClause |= addKeywordFilter(bool, "evse.chargerId", filter.chargerId(), true);
-        hasClause |= addKeywordFilter(bool, "location.city", filter.city(), false);
-        hasClause |= addKeywordFilter(bool, "status", filter.connectorStatus(), true);
-        hasClause |= addKeywordFilter(bool, "connector.id", filter.connectorId(), true);
-        hasClause |= addKeywordFilter(bool, "connector.standard", filter.connectorStandard(), true);
-        hasClause |= addKeywordFilter(bool, "connector.format", filter.connectorFormat(), true);
-        hasClause |= addKeywordFilter(bool, "connector.powerType", filter.powerType(), true);
-        hasClause |= addKeywordFilter(bool, "connector.tariffIds", filter.tariffId(), true);
+        addKeywordFilter(filters, "countryCode", filter.countryCode(), true);
+        addKeywordFilter(filters, "partyId", filter.partyId(), true);
+        addKeywordFilter(filters, "location.ocpiLocationId", filter.ocpiLocationId(), true);
+        addKeywordFilter(filters, "evse.chargerId", filter.chargerId(), true);
+        addKeywordFilter(filters, "location.city", filter.city(), false);
+        addKeywordFilter(filters, "status", filter.connectorStatus(), true);
+        addKeywordFilter(filters, "connector.id", filter.connectorId(), true);
+        addKeywordFilter(filters, "connector.standard", filter.connectorStandard(), true);
+        addKeywordFilter(filters, "connector.format", filter.connectorFormat(), true);
+        addKeywordFilter(filters, "connector.powerType", filter.powerType(), true);
+        addKeywordFilter(filters, "connector.tariffIds", filter.tariffId(), true);
 
         if (filter.active() != null) {
-            bool.filter(Query.of(q -> q.term(t -> t.field("active").value(filter.active()))));
-            hasClause = true;
+            filters.add(termFilter("active", filter.active()));
         }
 
         String search = normalizeText(filter.search());
+        List<Map<String, Object>> must = new ArrayList<>();
         if (!search.isBlank()) {
-            bool.must(Query.of(q -> q.simpleQueryString(s -> s
-                    .query(search)
-                    .fields(
-                            "location.name",
-                            "location.address",
-                            "location.city",
-                            "evse.chargerName",
-                            "evse.chargerId",
-                            "connector.id"
-                    ))));
-            hasClause = true;
+            Map<String, Object> simpleQueryString = new LinkedHashMap<>();
+            simpleQueryString.put("query", search);
+            simpleQueryString.put("fields", List.of(
+                    "location.name",
+                    "location.address",
+                    "location.city",
+                    "evse.chargerName",
+                    "evse.chargerId",
+                    "connector.id"
+            ));
+            must.add(Map.of("simple_query_string", simpleQueryString));
         }
 
-        if (!hasClause) {
-            return Query.of(q -> q.matchAll(m -> m));
+        if (filters.isEmpty() && must.isEmpty()) {
+            return Map.of("match_all", Map.of());
         }
-        return Query.of(q -> q.bool(bool.build()));
+
+        Map<String, Object> bool = new LinkedHashMap<>();
+        if (!filters.isEmpty()) {
+            bool.put("filter", filters);
+        }
+        if (!must.isEmpty()) {
+            bool.put("must", must);
+        }
+        return Map.of("bool", bool);
     }
 
-    private boolean addKeywordFilter(BoolQuery.Builder bool, String field, String rawValue, boolean uppercase) {
+    private boolean addKeywordFilter(
+            List<Map<String, Object>> filters,
+            String field,
+            String rawValue,
+            boolean uppercase
+    ) {
         String value = normalizeText(rawValue);
         if (value.isBlank()) {
             return false;
         }
 
         String normalized = uppercase ? value.toUpperCase(Locale.ROOT) : value;
-        bool.filter(Query.of(q -> q.term(t -> t.field(field).value(FieldValue.of(normalized)))));
+        filters.add(termFilter(keywordField(field), normalized));
         return true;
     }
 
+    private Map<String, Object> termFilter(String field, Object value) {
+        return Map.of("term", Map.of(field, value));
+    }
+
     private List<String> fetchPagedChargerIds(
-            ElasticsearchClient client,
-            Query baseQuery,
+            Rest5Client client,
+            Map<String, Object> baseQuery,
             int limit,
             int offset
     ) throws IOException {
-        SearchResponse<Map> response = client.search(s -> s
-                        .index(INDEX_NAME)
-                        .from(offset)
-                        .size(limit)
-                        .query(baseQuery)
-                        .collapse(c -> c.field("evse.chargerId"))
-                        .source(src -> src.filter(f -> f.includes("evse.chargerId")))
-                        .sort(sort -> sort.field(f -> f.field("evse.chargerId").order(SortOrder.Asc))),
-                Map.class);
+        Map<String, Object> requestBody = new LinkedHashMap<>();
+        requestBody.put("from", offset);
+        requestBody.put("size", limit);
+        requestBody.put("query", baseQuery);
+        requestBody.put("collapse", Map.of("field", keywordField("evse.chargerId")));
+        requestBody.put("_source", Map.of("includes", List.of("evse.chargerId")));
+        requestBody.put("sort", List.of(sortField(keywordField("evse.chargerId"))));
 
         List<String> chargerIds = new ArrayList<>();
-        for (Hit<Map> hit : response.hits().hits()) {
-            Map<String, Object> source = map(hit.source());
+        for (Map<String, Object> source : searchHits(client, requestBody)) {
             String chargerId = asString(readPath(source, "evse.chargerId"));
             if (!chargerId.isBlank()) {
                 chargerIds.add(chargerId);
@@ -219,8 +236,8 @@ public class OcpiChargerGraphqlService {
     }
 
     private List<Map<String, Object>> fetchConnectorRows(
-            ElasticsearchClient client,
-            Query baseQuery,
+            Rest5Client client,
+            Map<String, Object> baseQuery,
             List<String> chargerIds,
             Set<String> sourceIncludes
     ) throws IOException {
@@ -228,43 +245,30 @@ public class OcpiChargerGraphqlService {
             return List.of();
         }
 
-        Query chargerIdsQuery = Query.of(q -> q.terms(t -> t
-                .field("evse.chargerId")
-                .terms(values -> values.value(chargerIds.stream().map(FieldValue::of).toList()))
-        ));
-
-        Query finalQuery = Query.of(q -> q.bool(b -> b
-                .filter(baseQuery)
-                .filter(chargerIdsQuery)
-        ));
+        Map<String, Object> chargerIdsQuery = Map.of("terms", Map.of(keywordField("evse.chargerId"), chargerIds));
+        Map<String, Object> finalQuery = Map.of("bool", Map.of("filter", List.of(baseQuery, chargerIdsQuery)));
 
         List<Map<String, Object>> rows = new ArrayList<>();
         int from = 0;
 
         while (true) {
-            int pageFrom = from;
-            SearchResponse<Map> response = client.search(s -> s
-                            .index(INDEX_NAME)
-                            .from(pageFrom)
-                            .size(SEARCH_BATCH_SIZE)
-                            .query(finalQuery)
-                            .source(src -> src.filter(f -> f.includes(new ArrayList<>(sourceIncludes))))
-                            .sort(sort -> sort.field(f -> f.field("evse.chargerId").order(SortOrder.Asc)))
-                            .sort(sort -> sort.field(f -> f.field("evse.id").order(SortOrder.Asc)))
-                            .sort(sort -> sort.field(f -> f.field("connector.id").order(SortOrder.Asc))),
-                    Map.class);
+            Map<String, Object> requestBody = new LinkedHashMap<>();
+            requestBody.put("from", from);
+            requestBody.put("size", SEARCH_BATCH_SIZE);
+            requestBody.put("query", finalQuery);
+            requestBody.put("_source", Map.of("includes", new ArrayList<>(sourceIncludes)));
+            requestBody.put("sort", List.of(
+                    sortField(keywordField("evse.chargerId")),
+                    sortField(keywordField("evse.id")),
+                    sortField(keywordField("connector.id"))
+            ));
 
-            List<Hit<Map>> hits = response.hits().hits();
+            List<Map<String, Object>> hits = searchHits(client, requestBody);
             if (hits.isEmpty()) {
                 break;
             }
 
-            for (Hit<Map> hit : hits) {
-                Map<String, Object> source = map(hit.source());
-                if (!source.isEmpty()) {
-                    rows.add(source);
-                }
-            }
+            rows.addAll(hits);
 
             if (hits.size() < SEARCH_BATCH_SIZE) {
                 break;
@@ -273,6 +277,66 @@ public class OcpiChargerGraphqlService {
         }
 
         return rows;
+    }
+
+    private List<Map<String, Object>> searchHits(
+            Rest5Client client,
+            Map<String, Object> requestBody
+    ) throws IOException {
+        String payload = performSearchRequest(client, requestBody);
+        Map<String, Object> responseMap = objectMapper.readValue(payload, new TypeReference<>() {
+        });
+        Object hitsValue = readPath(responseMap, "hits.hits");
+        if (!(hitsValue instanceof Collection<?> collection) || collection.isEmpty()) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> sources = new ArrayList<>();
+        for (Object hitObject : collection) {
+            Map<String, Object> hitMap = map(hitObject);
+            Map<String, Object> sourceMap = map(hitMap.get("_source"));
+            if (!sourceMap.isEmpty()) {
+                sources.add(sourceMap);
+            }
+        }
+        return sources;
+    }
+
+    private String performSearchRequest(
+            Rest5Client client,
+            Map<String, Object> requestBody
+    ) throws IOException {
+        Request request = new Request("POST", "/" + INDEX_NAME + "/_search");
+        request.setJsonEntity(objectMapper.writeValueAsString(requestBody));
+
+        RequestOptions.Builder options = RequestOptions.DEFAULT.toBuilder();
+        options.removeHeader("Accept");
+        options.removeHeader("Content-Type");
+        options.addHeader("Accept", "application/json");
+        options.addHeader("Content-Type", "application/json");
+        request.setOptions(options);
+
+        Response response = client.performRequest(request);
+        String responseBody = response.getEntity() == null
+                ? ""
+                : new String(EntityUtils.toByteArray(response.getEntity()), StandardCharsets.UTF_8);
+
+        if (response.getStatusCode() >= 300) {
+            throw new IOException("Elasticsearch request failed with status "
+                    + response.getStatusCode() + ": " + responseBody);
+        }
+        return responseBody;
+    }
+
+    private Map<String, Object> sortField(String field) {
+        return Map.of(field, Map.of("order", "asc"));
+    }
+
+    private String keywordField(String field) {
+        if (field == null || field.isBlank() || field.endsWith(".keyword")) {
+            return field;
+        }
+        return field + ".keyword";
     }
 
     private Set<String> resolveSourceIncludes(DataFetchingFieldSelectionSet selectionSet) {
