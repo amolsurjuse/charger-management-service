@@ -27,7 +27,6 @@ Default port: `8086`
 - `POST /api/v1/admin/locations`
 - `GET /api/v1/admin/chargers`
 - `POST /api/v1/admin/chargers`
-- `POST /api/v1/admin/evses/search/publish`
 - `GET /healthz`
 - `GET /readyz`
 - `GET /actuator/health`

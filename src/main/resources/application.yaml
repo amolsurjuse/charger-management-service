@@ -56,14 +56,6 @@ app:
       - ${APP_CORS_ALLOWED_ORIGIN_4:https://ocpp-simulator-dev.electrahub.com:8443}
       - ${APP_CORS_ALLOWED_ORIGIN_5:http://localhost:4201}
       - ${APP_CORS_ALLOWED_ORIGIN_6:https://admin-portal-dev.electrahub.com:8443}
-  elasticsearch:
-    enabled: ${APP_ELASTICSEARCH_ENABLED:false}
-    url: ${APP_ELASTICSEARCH_URL:http://localhost:9200}
-    username: ${APP_ELASTICSEARCH_USERNAME:}
-    password: ${APP_ELASTICSEARCH_PASSWORD:}
-    evse-index: ${APP_ELASTICSEARCH_EVSE_INDEX:ocpi-evses-v1}
-    connect-timeout-ms: ${APP_ELASTICSEARCH_CONNECT_TIMEOUT_MS:3000}
-    request-timeout-ms: ${APP_ELASTICSEARCH_REQUEST_TIMEOUT_MS:10000}
 
 management:
   endpoints:
@@ -119,9 +111,3 @@ spring:
 logging:
   level:
     com.electrahub.charger: DEBUG
-
-grpc:
-  server:
-    port: ${GRPC_SERVER_PORT:9086}
-    reflection-service-enabled: ${GRPC_REFLECTION_ENABLED:true}
-    health-service-enabled: true

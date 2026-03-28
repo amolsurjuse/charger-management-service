@@ -160,12 +160,4 @@ public class ChargerAdminController {
     ) {
         return chargerAdminService.createConnector(request);
     }
-
-    @PostMapping("/evses/search/publish")
-    @Operation(summary = "Publish current EVSE data to Elasticsearch using OCPI-aligned document fields")
-    public ChargerAdminDtos.EvseSearchPublishResponse publishEvsesToSearch(
-            @RequestBody(required = false) ChargerAdminDtos.EvseSearchPublishRequest request
-    ) {
-        return chargerAdminService.publishCurrentEvsesToSearch(request);
-    }
 }
