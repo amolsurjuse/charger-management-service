@@ -113,6 +113,16 @@ public class ChargerAdminController {
         return chargerAdminService.listChargers(search, locationId, limit, offset);
     }
 
+    @GetMapping("/chargers/connectors")
+    @Operation(summary = "View chargers with nested connectors")
+    public ChargerAdminDtos.ChargerConnectorViewResponse viewChargersAndConnectors(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "25") @Min(1) @Max(200) int limit,
+            @RequestParam(defaultValue = "0") @Min(0) int offset
+    ) {
+        return chargerAdminService.viewChargersAndConnectors(search, limit, offset);
+    }
+
     @PostMapping("/chargers")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create charger")

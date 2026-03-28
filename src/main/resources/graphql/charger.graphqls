@@ -1,0 +1,92 @@
+type Query {
+  chargers(
+    status: String
+    ocppVersion: String
+    siteName: String
+    enabled: Boolean
+  ): [ChargerSummary!]!
+
+  ocpiChargers(
+    countryCode: String
+    partyId: String
+    ocpiLocationId: String
+    chargerId: String
+    city: String
+    connectorStatus: String
+    connectorId: String
+    connectorStandard: String
+    connectorFormat: String
+    powerType: String
+    tariffId: String
+    active: Boolean
+    search: String
+    limit: Int
+    offset: Int
+  ): [OcpiCharger!]!
+
+  ocpiCharger(chargerId: String!): OcpiCharger
+}
+
+type ChargerSummary {
+  chargerId: String!
+  displayName: String!
+  chargePointIdentity: String!
+  siteName: String
+  ocppVersion: String!
+  status: String!
+  enabled: Boolean!
+  firmwareVersion: String
+  lastHeartbeatAt: String
+  updatedAt: String
+}
+
+type OcpiCharger {
+  countryCode: String
+  partyId: String
+  chargerId: String!
+  chargerName: String
+  status: String!
+  available: Boolean!
+  lastUpdated: String
+  location: OcpiLocation
+  evses: [OcpiEvse!]!
+  pricing: OcpiPricing!
+}
+
+type OcpiLocation {
+  id: String
+  ocpiLocationId: String
+  name: String
+  address: String
+  city: String
+  coordinates: OcpiCoordinates
+}
+
+type OcpiCoordinates {
+  latitude: Float
+  longitude: Float
+}
+
+type OcpiEvse {
+  id: String!
+  uid: String
+  zone: String
+  capabilities: [String!]!
+  status: String!
+  connectors: [OcpiConnector!]!
+}
+
+type OcpiConnector {
+  id: String!
+  standard: String
+  format: String
+  powerType: String
+  maxPowerKw: Float
+  tariffIds: [String!]!
+  status: String!
+  available: Boolean!
+}
+
+type OcpiPricing {
+  tariffIds: [String!]!
+}

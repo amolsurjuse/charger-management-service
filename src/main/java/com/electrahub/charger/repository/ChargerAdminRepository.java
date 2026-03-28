@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -345,6 +346,8 @@ public class ChargerAdminRepository {
                 .addValue("city", request.city().trim())
                 .addValue("address", request.address().trim())
                 .addValue("ocpiLocationId", request.ocpiLocationId().trim().toUpperCase())
+                .addValue("latitude", request.latitude())
+                .addValue("longitude", request.longitude())
                 .addValue("enabled", request.enabled() == null || request.enabled())
                 .addValue("createdAt", now)
                 .addValue("updatedAt", now);
@@ -356,6 +359,8 @@ public class ChargerAdminRepository {
                     city,
                     address,
                     ocpi_location_id,
+                    latitude,
+                    longitude,
                     enabled,
                     created_at,
                     updated_at
@@ -366,6 +371,8 @@ public class ChargerAdminRepository {
                     :city,
                     :address,
                     :ocpiLocationId,
+                    :latitude,
+                    :longitude,
                     :enabled,
                     :createdAt,
                     :updatedAt
@@ -416,6 +423,8 @@ public class ChargerAdminRepository {
                        l.city,
                        l.address,
                        l.ocpi_location_id,
+                       l.latitude,
+                       l.longitude,
                        l.enabled,
                        l.created_at,
                        l.updated_at
@@ -446,6 +455,8 @@ public class ChargerAdminRepository {
                        l.city,
                        l.address,
                        l.ocpi_location_id,
+                       l.latitude,
+                       l.longitude,
                        l.enabled,
                        l.created_at,
                        l.updated_at
@@ -596,6 +607,83 @@ public class ChargerAdminRepository {
                  where c.charger_id = :chargerId
                 """, new MapSqlParameterSource("chargerId", chargerId), chargerRowMapper());
         return rows.stream().findFirst();
+    }
+
+    /**
+     * Counts chargers for the charger+connector view API.
+     *
+     * @param search optional free-text filter.
+     * @return total chargers matching the filter.
+     */
+    public long countChargersForConnectorView(String search) {
+        StringBuilder sql = new StringBuilder("""
+                select count(*)
+                  from charger_inventory c
+                  join locations l on l.location_id = c.location_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        appendChargerSearch(sql, params, search, null);
+        Long total = jdbcTemplate.queryForObject(sql.toString(), params, Long.class);
+        return total == null ? 0 : total;
+    }
+
+    /**
+     * Lists paged chargers for the charger+connector view API.
+     *
+     * @param search optional free-text filter.
+     * @param limit page size.
+     * @param offset page offset.
+     * @return paged charger rows.
+     */
+    public List<ChargerConnectorChargerRow> listChargersForConnectorView(String search, int limit, int offset) {
+        StringBuilder sql = new StringBuilder("""
+                select c.charger_id,
+                       c.display_name,
+                       c.location_id,
+                       l.name as location_name,
+                       c.model,
+                       c.ocpp_version,
+                       c.enabled,
+                       c.updated_at
+                  from charger_inventory c
+                  join locations l on l.location_id = c.location_id
+                 where 1=1
+                """);
+        MapSqlParameterSource params = pagedParams(limit, offset);
+        appendChargerSearch(sql, params, search, null);
+        sql.append(" order by c.updated_at desc, c.charger_id asc limit :limit offset :offset");
+        return jdbcTemplate.query(sql.toString(), params, chargerConnectorChargerRowMapper());
+    }
+
+    /**
+     * Lists connector details for the provided charger ids.
+     *
+     * @param chargerIds charger ids from the outer page query.
+     * @return connector rows grouped later at service layer.
+     */
+    public List<ChargerConnectorDetailRow> listConnectorRowsForChargers(List<String> chargerIds) {
+        if (chargerIds == null || chargerIds.isEmpty()) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                select c.connector_id,
+                       c.evse_id,
+                       e.evse_uid,
+                       e.charger_id,
+                       c.standard,
+                       c.format,
+                       c.power_type,
+                       c.max_power_kw,
+                       c.ocpi_tariff_ids,
+                       c.enabled,
+                       c.updated_at
+                  from connector_inventory c
+                  join evse_inventory e on e.evse_id = c.evse_id
+                 where e.charger_id in (:chargerIds)
+                 order by e.charger_id asc, c.updated_at desc, c.connector_id asc
+                """, new MapSqlParameterSource("chargerIds", chargerIds), chargerConnectorDetailRowMapper());
     }
 
     /**
@@ -1129,6 +1217,8 @@ public class ChargerAdminRepository {
                 rs.getString("city"),
                 rs.getString("address"),
                 rs.getString("ocpi_location_id"),
+                rs.getBigDecimal("latitude"),
+                rs.getBigDecimal("longitude"),
                 rs.getBoolean("enabled"),
                 toOffsetDateTime(rs.getTimestamp("created_at")),
                 toOffsetDateTime(rs.getTimestamp("updated_at"))
@@ -1157,6 +1247,35 @@ public class ChargerAdminRepository {
                 rs.getBigDecimal("max_power_kw"),
                 rs.getBoolean("enabled"),
                 toOffsetDateTime(rs.getTimestamp("created_at")),
+                toOffsetDateTime(rs.getTimestamp("updated_at"))
+        );
+    }
+
+    private RowMapper<ChargerConnectorChargerRow> chargerConnectorChargerRowMapper() {
+        return (rs, rowNum) -> new ChargerConnectorChargerRow(
+                rs.getString("charger_id"),
+                rs.getString("display_name"),
+                rs.getString("location_id"),
+                rs.getString("location_name"),
+                rs.getString("model"),
+                ChargerAdminDtos.OcppVersion.valueOf(rs.getString("ocpp_version")),
+                rs.getBoolean("enabled"),
+                toOffsetDateTime(rs.getTimestamp("updated_at"))
+        );
+    }
+
+    private RowMapper<ChargerConnectorDetailRow> chargerConnectorDetailRowMapper() {
+        return (rs, rowNum) -> new ChargerConnectorDetailRow(
+                rs.getString("charger_id"),
+                rs.getString("connector_id"),
+                rs.getString("evse_id"),
+                rs.getString("evse_uid"),
+                rs.getString("standard"),
+                rs.getString("format"),
+                rs.getString("power_type"),
+                rs.getBigDecimal("max_power_kw"),
+                deserializeTariffIds(rs.getString("ocpi_tariff_ids")),
+                rs.getBoolean("enabled"),
                 toOffsetDateTime(rs.getTimestamp("updated_at"))
         );
     }
@@ -1261,5 +1380,32 @@ public class ChargerAdminRepository {
      */
     private OffsetDateTime toOffsetDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant().atOffset(ZoneOffset.UTC);
+    }
+
+    public record ChargerConnectorChargerRow(
+            String chargerId,
+            String displayName,
+            String locationId,
+            String locationName,
+            String model,
+            ChargerAdminDtos.OcppVersion ocppVersion,
+            boolean enabled,
+            OffsetDateTime updatedAt
+    ) {
+    }
+
+    public record ChargerConnectorDetailRow(
+            String chargerId,
+            String connectorId,
+            String evseId,
+            String evseUid,
+            String standard,
+            String format,
+            String powerType,
+            BigDecimal maxPowerKw,
+            List<String> ocpiTariffIds,
+            boolean enabled,
+            OffsetDateTime updatedAt
+    ) {
     }
 }

@@ -97,6 +97,8 @@ public final class ChargerAdminDtos {
             @NotBlank @Size(max = 96) String city,
             @NotBlank @Size(max = 255) String address,
             @NotBlank @Size(max = 64) String ocpiLocationId,
+            @DecimalMin("-90.0") @DecimalMax("90.0") BigDecimal latitude,
+            @DecimalMin("-180.0") @DecimalMax("180.0") BigDecimal longitude,
             Boolean enabled
     ) {
     }
@@ -109,6 +111,8 @@ public final class ChargerAdminDtos {
             String city,
             String address,
             String ocpiLocationId,
+            BigDecimal latitude,
+            BigDecimal longitude,
             boolean enabled,
             OffsetDateTime createdAt,
             OffsetDateTime updatedAt
@@ -140,6 +144,45 @@ public final class ChargerAdminDtos {
             BigDecimal maxPowerKw,
             boolean enabled,
             OffsetDateTime createdAt,
+            OffsetDateTime updatedAt
+    ) {
+    }
+
+    public record ChargerConnectorViewResponse(
+            List<ChargerWithConnectorsResponse> items,
+            long total,
+            int limit,
+            int offset,
+            int currentPage,
+            int totalPages,
+            boolean hasNext,
+            boolean hasPrevious
+    ) {
+    }
+
+    public record ChargerWithConnectorsResponse(
+            String chargerId,
+            String displayName,
+            String locationId,
+            String locationName,
+            String model,
+            OcppVersion ocppVersion,
+            boolean enabled,
+            OffsetDateTime updatedAt,
+            List<ConnectorViewResponse> connectors
+    ) {
+    }
+
+    public record ConnectorViewResponse(
+            String connectorId,
+            String evseId,
+            String evseUid,
+            String standard,
+            String format,
+            String powerType,
+            BigDecimal maxPowerKw,
+            List<String> ocpiTariffIds,
+            boolean enabled,
             OffsetDateTime updatedAt
     ) {
     }

@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-add-location-coordinates
+      author: codex
+      changes:
+        - addColumn:
+            tableName: locations
+            columns:
+              - column:
+                  name: latitude
+                  type: numeric(10,7)
+              - column:
+                  name: longitude
+                  type: numeric(10,7)
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              update locations
+                 set latitude = 42.3534000,
+                     longitude = -71.0577000
+               where location_id = 'LOC-BOS-001';
+
+              update locations
+                 set latitude = 37.8079000,
+                     longitude = -122.4313000
+               where location_id = 'LOC-SFO-001';
+
+              update locations
+                 set latitude = 52.3780000,
+                     longitude = 4.9004000
+               where location_id = 'LOC-AMS-001';

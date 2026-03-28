@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/006-seed-evse-and-connector-admin-data.yaml
   - include:
       file: db/changelog/007-seed-50-connector-tariff-links.yaml
+  - include:
+      file: db/changelog/008-add-location-coordinates.yaml

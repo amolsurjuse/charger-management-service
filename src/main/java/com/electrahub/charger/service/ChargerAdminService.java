@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ChargerAdminService {
@@ -170,6 +172,61 @@ public class ChargerAdminService {
         long total = chargerAdminRepository.countChargers(search, locationId);
         List<ChargerAdminDtos.ChargerResponse> items = chargerAdminRepository.listChargers(search, locationId, limit, offset);
         return paged(items, total, limit, offset);
+    }
+
+    /**
+     * Retrieves chargers with nested connector details in a single response.
+     *
+     * @param search optional free-text search.
+     * @param limit page size.
+     * @param offset page offset.
+     * @return paged charger rows with connector details attached.
+     */
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.ChargerConnectorViewResponse viewChargersAndConnectors(String search, int limit, int offset) {
+        long total = chargerAdminRepository.countChargersForConnectorView(search);
+        List<ChargerAdminRepository.ChargerConnectorChargerRow> chargerRows =
+                chargerAdminRepository.listChargersForConnectorView(search, limit, offset);
+
+        List<String> chargerIds = chargerRows.stream()
+                .map(ChargerAdminRepository.ChargerConnectorChargerRow::chargerId)
+                .toList();
+        Map<String, List<ChargerAdminDtos.ConnectorViewResponse>> connectorsByCharger =
+                chargerAdminRepository.listConnectorRowsForChargers(chargerIds).stream()
+                        .collect(Collectors.groupingBy(
+                                ChargerAdminRepository.ChargerConnectorDetailRow::chargerId,
+                                Collectors.mapping(this::toConnectorViewResponse, Collectors.toList())
+                        ));
+
+        List<ChargerAdminDtos.ChargerWithConnectorsResponse> items = chargerRows.stream()
+                .map(row -> new ChargerAdminDtos.ChargerWithConnectorsResponse(
+                        row.chargerId(),
+                        row.displayName(),
+                        row.locationId(),
+                        row.locationName(),
+                        row.model(),
+                        row.ocppVersion(),
+                        row.enabled(),
+                        row.updatedAt(),
+                        connectorsByCharger.getOrDefault(row.chargerId(), List.of())
+                ))
+                .toList();
+
+        int currentPage = limit <= 0 ? 0 : offset / limit;
+        int totalPages = limit <= 0 ? 0 : (int) Math.ceil((double) total / limit);
+        boolean hasNext = offset + limit < total;
+        boolean hasPrevious = offset > 0;
+
+        return new ChargerAdminDtos.ChargerConnectorViewResponse(
+                items,
+                total,
+                limit,
+                offset,
+                currentPage,
+                totalPages,
+                hasNext,
+                hasPrevious
+        );
     }
 
     /**
@@ -355,6 +412,21 @@ public class ChargerAdminService {
                 result.indexedConnectors(),
                 result.failedConnectors(),
                 result.executedAt()
+        );
+    }
+
+    private ChargerAdminDtos.ConnectorViewResponse toConnectorViewResponse(ChargerAdminRepository.ChargerConnectorDetailRow row) {
+        return new ChargerAdminDtos.ConnectorViewResponse(
+                row.connectorId(),
+                row.evseId(),
+                row.evseUid(),
+                row.standard(),
+                row.format(),
+                row.powerType(),
+                row.maxPowerKw(),
+                row.ocpiTariffIds(),
+                row.enabled(),
+                row.updatedAt()
         );
     }
 

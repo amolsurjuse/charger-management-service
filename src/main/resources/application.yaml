@@ -22,6 +22,8 @@ spring:
         enabled: ${SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED:true}
   elasticsearch:
     uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+  graphql:
+    path: /graphql
   liquibase:
     enabled: ${SPRING_LIQUIBASE_ENABLED:true}
     change-log: classpath:db/changelog/db.changelog-master.yaml

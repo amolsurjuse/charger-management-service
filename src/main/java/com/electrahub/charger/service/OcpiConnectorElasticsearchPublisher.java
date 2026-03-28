@@ -134,6 +134,8 @@ public class OcpiConnectorElasticsearchPublisher {
         location.setName(row.locationName());
         location.setAddress(row.locationAddress());
         location.setCity(row.locationCity());
+        location.setLatitude(row.locationLatitude() == null ? null : row.locationLatitude().doubleValue());
+        location.setLongitude(row.locationLongitude() == null ? null : row.locationLongitude().doubleValue());
         location.setNetworkId(row.networkId());
         location.setNetworkName(row.networkName());
         location.setEnterpriseId(row.enterpriseId());
