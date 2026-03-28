@@ -20,6 +20,7 @@ public class ChargerAdminService {
 
 
     private final ChargerAdminRepository chargerAdminRepository;
+    private final EvseElasticsearchPublisher evseElasticsearchPublisher;
 
     /**
      * Executes charger admin service for `ChargerAdminService`.
@@ -27,11 +28,16 @@ public class ChargerAdminService {
      * <p>Detailed behavior: follows the current implementation path and
      * enforces component-specific rules in `com.electrahub.charger.service`.
      * @param chargerAdminRepository input consumed by ChargerAdminService.
+     * @param evseElasticsearchPublisher input consumed by ChargerAdminService.
      */
-    public ChargerAdminService(ChargerAdminRepository chargerAdminRepository) {
+    public ChargerAdminService(
+            ChargerAdminRepository chargerAdminRepository,
+            EvseElasticsearchPublisher evseElasticsearchPublisher
+    ) {
         LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService");
         LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService with debug context");
         this.chargerAdminRepository = chargerAdminRepository;
+        this.evseElasticsearchPublisher = evseElasticsearchPublisher;
     }
 
     /**
@@ -269,6 +275,17 @@ public class ChargerAdminService {
         } catch (DuplicateKeyException ex) {
             throw new ConflictException("Connector '%s' already exists".formatted(request.connectorId()));
         }
+    }
+
+    /**
+     * Publishes current evse inventory to Elasticsearch using OCPI-aligned document structure.
+     *
+     * @param request publish request with index lifecycle options.
+     * @return publish summary containing counts and warnings.
+     */
+    public ChargerAdminDtos.EvseSearchPublishResponse publishCurrentEvsesToSearch(ChargerAdminDtos.EvseSearchPublishRequest request) {
+        boolean recreateIndex = request != null && Boolean.TRUE.equals(request.recreateIndex());
+        return evseElasticsearchPublisher.publishCurrentEvses(recreateIndex);
     }
 
     /**

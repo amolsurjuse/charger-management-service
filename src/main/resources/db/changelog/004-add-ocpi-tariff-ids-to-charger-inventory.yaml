@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-ocpi-tariff-ids-to-charger-inventory
+      author: codex
+      changes:
+        - addColumn:
+            tableName: charger_inventory
+            columns:
+              - column:
+                  name: ocpi_tariff_ids
+                  type: text
+                  defaultValue: ""
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropColumn:
+            tableName: charger_inventory
+            columnName: ocpi_tariff_ids

@@ -195,6 +195,21 @@ public final class ChargerAdminDtos {
     ) {
     }
 
+    public record EvseSearchPublishRequest(
+            Boolean recreateIndex
+    ) {
+    }
+
+    public record EvseSearchPublishResponse(
+            String indexName,
+            long totalEvses,
+            long indexedEvses,
+            long failedEvses,
+            OffsetDateTime publishedAt,
+            List<String> warnings
+    ) {
+    }
+
     public record PageRequest(
             @Min(1) @Max(200) int limit,
             @Min(0) int offset

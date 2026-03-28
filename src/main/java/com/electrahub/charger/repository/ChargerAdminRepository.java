@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -867,6 +868,66 @@ public class ChargerAdminRepository {
     }
 
     /**
+     * Retrieves list evses for search indexing for `ChargerAdminRepository`.
+     *
+     * <p>Detailed behavior: returns flattened EVSE and connector rows enriched with OCPI ownership and location data,
+     * allowing service-level grouping into OCPI-aligned Elasticsearch documents.
+     * @return result produced by listEvsesForSearchIndexing.
+     */
+    public List<EvseSearchExportRow> listEvsesForSearchIndexing() {
+        return jdbcTemplate.query("""
+                select en.country_code,
+                       en.party_id,
+                       l.ocpi_location_id,
+                       c.charger_id,
+                       c.display_name as charger_display_name,
+                       e.evse_id,
+                       e.evse_uid,
+                       e.zone,
+                       e.capabilities,
+                       e.enabled as evse_enabled,
+                       e.updated_at as evse_updated_at,
+                       ci.connector_id,
+                       ci.standard as connector_standard,
+                       ci.format as connector_format,
+                       ci.power_type as connector_power_type,
+                       ci.max_power_kw as connector_max_power_kw,
+                       ci.ocpi_tariff_ids as connector_tariff_ids,
+                       ci.enabled as connector_enabled,
+                       ci.updated_at as connector_updated_at
+                  from evse_inventory e
+                  join charger_inventory c on c.charger_id = e.charger_id
+                  join locations l on l.location_id = c.location_id
+                  join networks n on n.network_id = l.network_id
+                  join enterprises en on en.enterprise_id = n.enterprise_id
+             left join connector_inventory ci on ci.evse_id = e.evse_id
+              order by e.evse_id asc, ci.connector_id asc
+                """,
+                (rs, rowNum) -> new EvseSearchExportRow(
+                        rs.getString("country_code"),
+                        rs.getString("party_id"),
+                        rs.getString("ocpi_location_id"),
+                        rs.getString("charger_id"),
+                        rs.getString("charger_display_name"),
+                        rs.getString("evse_id"),
+                        rs.getString("evse_uid"),
+                        rs.getString("zone"),
+                        rs.getString("capabilities"),
+                        rs.getBoolean("evse_enabled"),
+                        toOffsetDateTime(rs.getTimestamp("evse_updated_at")),
+                        rs.getString("connector_id"),
+                        rs.getString("connector_standard"),
+                        rs.getString("connector_format"),
+                        rs.getString("connector_power_type"),
+                        rs.getBigDecimal("connector_max_power_kw"),
+                        rs.getString("connector_tariff_ids"),
+                        rs.getObject("connector_enabled") == null || rs.getBoolean("connector_enabled"),
+                        toOffsetDateTime(rs.getTimestamp("connector_updated_at"))
+                )
+        );
+    }
+
+    /**
      * Executes exists for `ChargerAdminRepository`.
      *
      * <p>Detailed behavior: follows the current implementation path and
@@ -1261,5 +1322,28 @@ public class ChargerAdminRepository {
      */
     private OffsetDateTime toOffsetDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant().atOffset(ZoneOffset.UTC);
+    }
+
+    public record EvseSearchExportRow(
+            String enterpriseCountryCode,
+            String enterprisePartyId,
+            String ocpiLocationId,
+            String chargerId,
+            String chargerDisplayName,
+            String evseId,
+            String evseUid,
+            String zone,
+            String capabilities,
+            boolean evseEnabled,
+            OffsetDateTime evseUpdatedAt,
+            String connectorId,
+            String connectorStandard,
+            String connectorFormat,
+            String connectorPowerType,
+            BigDecimal connectorMaxPowerKw,
+            String connectorTariffIds,
+            boolean connectorEnabled,
+            OffsetDateTime connectorUpdatedAt
+    ) {
     }
 }
