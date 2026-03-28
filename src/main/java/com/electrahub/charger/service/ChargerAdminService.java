@@ -20,6 +20,7 @@ public class ChargerAdminService {
 
 
     private final ChargerAdminRepository chargerAdminRepository;
+    private final OcpiConnectorElasticsearchPublisher ocpiConnectorElasticsearchPublisher;
 
     /**
      * Executes charger admin service for `ChargerAdminService`.
@@ -28,10 +29,14 @@ public class ChargerAdminService {
      * enforces component-specific rules in `com.electrahub.charger.service`.
      * @param chargerAdminRepository input consumed by ChargerAdminService.
      */
-    public ChargerAdminService(ChargerAdminRepository chargerAdminRepository) {
+    public ChargerAdminService(
+            ChargerAdminRepository chargerAdminRepository,
+            OcpiConnectorElasticsearchPublisher ocpiConnectorElasticsearchPublisher
+    ) {
         LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService");
         LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService with debug context");
         this.chargerAdminRepository = chargerAdminRepository;
+        this.ocpiConnectorElasticsearchPublisher = ocpiConnectorElasticsearchPublisher;
     }
 
     /**
@@ -265,10 +270,29 @@ public class ChargerAdminService {
             throw new ConflictException("Connector '%s' already exists".formatted(request.connectorId()));
         }
         try {
-            return chargerAdminRepository.createConnector(request);
+            ChargerAdminDtos.ConnectorResponse connector = chargerAdminRepository.createConnector(request);
+            ocpiConnectorElasticsearchPublisher.publishConnector(connector.connectorId());
+            return connector;
         } catch (DuplicateKeyException ex) {
             throw new ConflictException("Connector '%s' already exists".formatted(request.connectorId()));
         }
+    }
+
+    /**
+     * Reindexes connector OCPI payloads into Elasticsearch.
+     *
+     * @return summary of reindex execution for connector documents.
+     */
+    @Transactional(readOnly = true)
+    public ChargerAdminDtos.ConnectorSearchReindexResponse reindexConnectorSearch() {
+        OcpiConnectorElasticsearchPublisher.ReindexResult result = ocpiConnectorElasticsearchPublisher.reindexAllConnectors();
+        return new ChargerAdminDtos.ConnectorSearchReindexResponse(
+                result.indexName(),
+                result.totalConnectors(),
+                result.indexedConnectors(),
+                result.failedConnectors(),
+                result.executedAt()
+        );
     }
 
     /**

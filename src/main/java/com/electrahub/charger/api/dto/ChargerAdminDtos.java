@@ -195,6 +195,15 @@ public final class ChargerAdminDtos {
     ) {
     }
 
+    public record ConnectorSearchReindexResponse(
+            String indexName,
+            long totalConnectors,
+            long indexedConnectors,
+            long failedConnectors,
+            OffsetDateTime executedAt
+    ) {
+    }
+
     public record PageRequest(
             @Min(1) @Max(200) int limit,
             @Min(0) int offset

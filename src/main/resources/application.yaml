@@ -16,6 +16,12 @@ spring:
       max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
       keepalive-time: ${DB_POOL_KEEPALIVE_MS:300000}
       leak-detection-threshold: ${DB_POOL_LEAK_DETECTION_MS:0}
+  data:
+    elasticsearch:
+      repositories:
+        enabled: ${SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED:true}
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
   liquibase:
     enabled: ${SPRING_LIQUIBASE_ENABLED:true}
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -56,6 +62,8 @@ app:
       - ${APP_CORS_ALLOWED_ORIGIN_4:https://ocpp-simulator-dev.electrahub.com:8443}
       - ${APP_CORS_ALLOWED_ORIGIN_5:http://localhost:4201}
       - ${APP_CORS_ALLOWED_ORIGIN_6:https://admin-portal-dev.electrahub.com:8443}
+  elasticsearch:
+    enabled: ${CHARGER_ELASTICSEARCH_ENABLED:true}
 
 management:
   endpoints:

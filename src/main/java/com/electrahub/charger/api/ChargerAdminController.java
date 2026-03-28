@@ -160,4 +160,10 @@ public class ChargerAdminController {
     ) {
         return chargerAdminService.createConnector(request);
     }
+
+    @PostMapping("/connectors/search/reindex")
+    @Operation(summary = "Reindex OCPI connector search documents to Elasticsearch")
+    public ChargerAdminDtos.ConnectorSearchReindexResponse reindexConnectorSearch() {
+        return chargerAdminService.reindexConnectorSearch();
+    }
 }
