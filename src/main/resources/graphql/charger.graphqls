@@ -51,6 +51,7 @@ type OcpiCharger {
   location: OcpiLocation
   evses: [OcpiEvse!]!
   pricing: OcpiPricing!
+  currentSession: OcpiCurrentSession
 }
 
 type OcpiLocation {
@@ -89,4 +90,11 @@ type OcpiConnector {
 
 type OcpiPricing {
   tariffIds: [String!]!
+}
+
+type OcpiCurrentSession {
+  id: String!
+  userId: String
+  status: String
+  startedAt: String
 }

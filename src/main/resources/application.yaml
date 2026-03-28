@@ -66,6 +66,10 @@ app:
       - ${APP_CORS_ALLOWED_ORIGIN_6:https://admin-portal-dev.electrahub.com:8443}
   elasticsearch:
     enabled: ${CHARGER_ELASTICSEARCH_ENABLED:true}
+  services:
+    session:
+      enabled: ${SESSION_SERVICE_ENABLED:true}
+      url: ${SESSION_SERVICE_URL:http://session-service:8083}
 
 management:
   endpoints:
@@ -121,3 +125,8 @@ spring:
 logging:
   level:
     com.electrahub.charger: DEBUG
+
+app:
+  services:
+    session:
+      url: ${SESSION_SERVICE_URL:http://localhost:8083}

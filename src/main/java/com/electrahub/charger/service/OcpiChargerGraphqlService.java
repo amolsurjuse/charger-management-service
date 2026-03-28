@@ -37,15 +37,18 @@ public class OcpiChargerGraphqlService {
     private final ElasticsearchProperties elasticsearchProperties;
     private final ObjectProvider<Rest5Client> restClientProvider;
     private final ObjectMapper objectMapper;
+    private final ChargerSessionLookupService chargerSessionLookupService;
 
     public OcpiChargerGraphqlService(
             ElasticsearchProperties elasticsearchProperties,
             ObjectProvider<Rest5Client> restClientProvider,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            ChargerSessionLookupService chargerSessionLookupService
     ) {
         this.elasticsearchProperties = elasticsearchProperties;
         this.restClientProvider = restClientProvider;
         this.objectMapper = objectMapper;
+        this.chargerSessionLookupService = chargerSessionLookupService;
     }
 
     public List<OcpiChargerGraphqlDto> listChargers(
@@ -85,7 +88,23 @@ public class OcpiChargerGraphqlService {
             throw new IllegalStateException("Failed to query charger connectors from Elasticsearch", ex);
         }
 
-        return toChargerDtos(pageChargerIds, connectorRows);
+        List<OcpiChargerGraphqlDto> chargers = toChargerDtos(pageChargerIds, connectorRows);
+        if (chargers.isEmpty() || !selectionRequiresCurrentSession(selectionSet)) {
+            return chargers;
+        }
+
+        Map<String, ChargerSessionLookupService.ActiveSessionDto> sessionsByChargerId =
+                chargerSessionLookupService.findActiveSessionsByChargerIds(
+                        chargers.stream().map(OcpiChargerGraphqlDto::chargerId).toList()
+                );
+
+        if (sessionsByChargerId.isEmpty()) {
+            return chargers;
+        }
+
+        return chargers.stream()
+                .map(charger -> withCurrentSession(charger, sessionsByChargerId.get(charger.chargerId())))
+                .toList();
     }
 
     public OcpiChargerGraphqlDto viewCharger(
@@ -417,6 +436,40 @@ public class OcpiChargerGraphqlService {
                 .toList();
     }
 
+    private boolean selectionRequiresCurrentSession(DataFetchingFieldSelectionSet selectionSet) {
+        return selectionSet.contains("currentSession")
+                || selectionSet.contains("currentSession/*")
+                || selectionSet.contains("currentSession/**");
+    }
+
+    private OcpiChargerGraphqlDto withCurrentSession(
+            OcpiChargerGraphqlDto charger,
+            ChargerSessionLookupService.ActiveSessionDto activeSession
+    ) {
+        OcpiCurrentSessionGraphqlDto currentSession = activeSession == null
+                ? null
+                : new OcpiCurrentSessionGraphqlDto(
+                activeSession.id(),
+                activeSession.userId(),
+                activeSession.status(),
+                activeSession.startedAt()
+        );
+
+        return new OcpiChargerGraphqlDto(
+                charger.countryCode(),
+                charger.partyId(),
+                charger.chargerId(),
+                charger.chargerName(),
+                charger.status(),
+                charger.available(),
+                charger.lastUpdated(),
+                charger.location(),
+                charger.evses(),
+                charger.pricing(),
+                currentSession
+        );
+    }
+
     @SuppressWarnings("unchecked")
     private Map<String, Object> map(Object value) {
         if (value instanceof Map<?, ?> map) {
@@ -579,7 +632,8 @@ public class OcpiChargerGraphqlService {
             String lastUpdated,
             OcpiLocationGraphqlDto location,
             List<OcpiEvseGraphqlDto> evses,
-            OcpiPricingGraphqlDto pricing
+            OcpiPricingGraphqlDto pricing,
+            OcpiCurrentSessionGraphqlDto currentSession
     ) {
     }
 
@@ -623,6 +677,14 @@ public class OcpiChargerGraphqlService {
 
     public record OcpiPricingGraphqlDto(
             List<String> tariffIds
+    ) {
+    }
+
+    public record OcpiCurrentSessionGraphqlDto(
+            String id,
+            String userId,
+            String status,
+            String startedAt
     ) {
     }
 
@@ -721,7 +783,8 @@ public class OcpiChargerGraphqlService {
                     lastUpdated == null ? null : lastUpdated.toString(),
                     location,
                     evseDtos,
-                    new OcpiPricingGraphqlDto(pricingTariffIds.stream().toList())
+                    new OcpiPricingGraphqlDto(pricingTariffIds.stream().toList()),
+                    null
             );
         }
     }
