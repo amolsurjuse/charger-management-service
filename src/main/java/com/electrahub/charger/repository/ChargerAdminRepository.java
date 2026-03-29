@@ -623,7 +623,7 @@ public class ChargerAdminRepository {
                  where 1=1
                 """);
         MapSqlParameterSource params = new MapSqlParameterSource();
-        appendChargerSearch(sql, params, search, null);
+        appendChargerConnectorViewSearch(sql, params, search);
         Long total = jdbcTemplate.queryForObject(sql.toString(), params, Long.class);
         return total == null ? 0 : total;
     }
@@ -651,7 +651,7 @@ public class ChargerAdminRepository {
                  where 1=1
                 """);
         MapSqlParameterSource params = pagedParams(limit, offset);
-        appendChargerSearch(sql, params, search, null);
+        appendChargerConnectorViewSearch(sql, params, search);
         sql.append(" order by c.updated_at desc, c.charger_id asc limit :limit offset :offset");
         return jdbcTemplate.query(sql.toString(), params, chargerConnectorChargerRowMapper());
     }
@@ -1070,6 +1070,37 @@ public class ChargerAdminRepository {
                     """);
             params.addValue("query", like(search));
         }
+    }
+
+    private void appendChargerConnectorViewSearch(StringBuilder sql, MapSqlParameterSource params, String search) {
+        if (search == null || search.isBlank()) {
+            return;
+        }
+        sql.append("""
+                 and (
+                    lower(c.charger_id) like :query
+                    or lower(c.display_name) like :query
+                    or lower(c.model) like :query
+                    or lower(c.ocpp_version) like :query
+                    or lower(l.name) like :query
+                    or exists (
+                        select 1
+                          from evse_inventory e
+                          left join connector_inventory cn on cn.evse_id = e.evse_id
+                         where e.charger_id = c.charger_id
+                           and (
+                                lower(e.evse_id) like :query
+                                or lower(e.evse_uid) like :query
+                                or lower(cn.connector_id) like :query
+                                or lower(cn.standard) like :query
+                                or lower(cn.format) like :query
+                                or lower(cn.power_type) like :query
+                                or lower(coalesce(cn.ocpi_tariff_ids, '')) like :query
+                           )
+                    )
+                 )
+                """);
+        params.addValue("query", like(search));
     }
 
     /**
