@@ -107,11 +107,23 @@ public class OcpiChargerGraphqlService {
                 .toList();
     }
 
+    /**
+     * Resolves a single OCPI charger view by charger id, connector id, or both.
+     * When both identifiers are supplied they are applied together.
+     *
+     * @param chargerId optional charger id filter
+     * @param connectorId optional connector id filter
+     * @param selectionSet GraphQL selection set for source projection decisions
+     * @return matched charger projection or {@code null} when no match exists
+     */
     public OcpiChargerGraphqlDto viewCharger(
             String chargerId,
+            String connectorId,
             DataFetchingFieldSelectionSet selectionSet
     ) {
-        if (chargerId == null || chargerId.isBlank()) {
+        String normalizedChargerId = normalizeText(chargerId);
+        String normalizedConnectorId = normalizeText(connectorId);
+        if (normalizedChargerId.isBlank() && normalizedConnectorId.isBlank()) {
             return null;
         }
 
@@ -119,10 +131,10 @@ public class OcpiChargerGraphqlService {
                 null,
                 null,
                 null,
-                chargerId,
+                normalizedChargerId.isBlank() ? null : normalizedChargerId,
                 null,
                 null,
-                null,
+                normalizedConnectorId.isBlank() ? null : normalizedConnectorId,
                 null,
                 null,
                 null,

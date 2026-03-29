@@ -24,7 +24,7 @@ type Query {
     offset: Int
   ): [OcpiCharger!]!
 
-  ocpiCharger(chargerId: String!): OcpiCharger
+  ocpiCharger(chargerId: String, connectorId: String): OcpiCharger
 }
 
 type ChargerSummary {

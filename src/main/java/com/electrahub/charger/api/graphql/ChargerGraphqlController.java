@@ -82,9 +82,10 @@ public class ChargerGraphqlController {
     @QueryMapping
     public OcpiChargerGraphqlService.OcpiChargerGraphqlDto ocpiCharger(
             @Argument String chargerId,
+            @Argument String connectorId,
             DataFetchingEnvironment environment
     ) {
-        return ocpiChargerGraphqlService.viewCharger(chargerId, environment.getSelectionSet());
+        return ocpiChargerGraphqlService.viewCharger(chargerId, connectorId, environment.getSelectionSet());
     }
 
     private ChargerSummaryGraphqlDto toGraphqlDto(ChargerDtos.ChargerSummary summary) {
