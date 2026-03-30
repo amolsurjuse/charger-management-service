@@ -179,10 +179,10 @@ public class OcpiChargerGraphqlService {
         addKeywordFilter(filters, "countryCode", filter.countryCode(), true);
         addKeywordFilter(filters, "partyId", filter.partyId(), true);
         addKeywordFilter(filters, "location.ocpiLocationId", filter.ocpiLocationId(), true);
-        addKeywordFilter(filters, "evse.chargerId", filter.chargerId(), true);
+        addCaseFlexibleKeywordFilter(filters, "evse.chargerId", filter.chargerId(), true);
         addKeywordFilter(filters, "location.city", filter.city(), false);
         addKeywordFilter(filters, "status", filter.connectorStatus(), true);
-        addKeywordFilter(filters, "connector.id", filter.connectorId(), true);
+        addCaseFlexibleKeywordFilter(filters, "connector.id", filter.connectorId(), true);
         addKeywordFilter(filters, "connector.standard", filter.connectorStandard(), true);
         addKeywordFilter(filters, "connector.format", filter.connectorFormat(), true);
         addKeywordFilter(filters, "connector.powerType", filter.powerType(), true);
@@ -235,6 +235,40 @@ public class OcpiChargerGraphqlService {
 
         String normalized = uppercase ? value.toUpperCase(Locale.ROOT) : value;
         filters.add(termFilter(keywordField(field), normalized));
+        return true;
+    }
+
+    private boolean addCaseFlexibleKeywordFilter(
+            List<Map<String, Object>> filters,
+            String field,
+            String rawValue,
+            boolean uppercase
+    ) {
+        String value = normalizeText(rawValue);
+        if (value.isBlank()) {
+            return false;
+        }
+
+        LinkedHashSet<String> candidates = new LinkedHashSet<>();
+        candidates.add(value);
+
+        if (uppercase) {
+            candidates.add(value.toUpperCase(Locale.ROOT));
+            candidates.add(value.toLowerCase(Locale.ROOT));
+        }
+
+        if (candidates.size() == 1) {
+            filters.add(termFilter(keywordField(field), candidates.iterator().next()));
+            return true;
+        }
+
+        List<Map<String, Object>> should = candidates.stream()
+                .map(candidate -> termFilter(keywordField(field), candidate))
+                .toList();
+        filters.add(Map.of("bool", Map.of(
+                "should", should,
+                "minimum_should_match", 1
+        )));
         return true;
     }
 
