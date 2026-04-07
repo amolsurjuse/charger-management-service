@@ -84,12 +84,27 @@ type OcpiConnector {
   powerType: String
   maxPowerKw: Float
   tariffIds: [String!]!
+  tariffs: [OcpiTariff!]!
   status: String!
   available: Boolean!
 }
 
+type OcpiTariff {
+  tariffId: String!
+  name: String
+  description: String
+  currency: String
+  energyPrice: Float
+  timePrice: Float
+  parkingPrice: Float
+  flatFee: Float
+  minPrice: Float
+  maxPrice: Float
+}
+
 type OcpiPricing {
   tariffIds: [String!]!
+  tariffs: [OcpiTariff!]!
 }
 
 type OcpiCurrentSession {
