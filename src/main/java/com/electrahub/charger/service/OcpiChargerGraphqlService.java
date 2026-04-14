@@ -512,6 +512,8 @@ public class OcpiChargerGraphqlService {
                 charger.chargerName(),
                 charger.status(),
                 charger.available(),
+                charger.availablePorts(),
+                charger.busyPorts(),
                 charger.lastUpdated(),
                 charger.location(),
                 charger.evses(),
@@ -703,6 +705,8 @@ public class OcpiChargerGraphqlService {
                 charger.chargerName(),
                 charger.status(),
                 charger.available(),
+                charger.availablePorts(),
+                charger.busyPorts(),
                 charger.lastUpdated(),
                 charger.location(),
                 enrichedEvses,
@@ -793,6 +797,8 @@ public class OcpiChargerGraphqlService {
             String chargerName,
             String status,
             boolean available,
+            int availablePorts,
+            int busyPorts,
             String lastUpdated,
             OcpiLocationGraphqlDto location,
             List<OcpiEvseGraphqlDto> evses,
@@ -952,6 +958,14 @@ public class OcpiChargerGraphqlService {
 
             String chargerStatus = normalizeStatus(statuses);
             boolean available = isAvailableStatus(chargerStatus);
+            int availablePorts = 0;
+            int totalPorts = 0;
+            for (EvseAccumulator evseAccumulator : evses.values()) {
+                totalPorts += evseAccumulator.connectors.size();
+                availablePorts += evseAccumulator.connectors.values().stream()
+                        .mapToInt(connector -> connector.available() ? 1 : 0)
+                        .sum();
+            }
 
             return new OcpiChargerGraphqlDto(
                     countryCode,
@@ -960,6 +974,8 @@ public class OcpiChargerGraphqlService {
                     chargerName,
                     chargerStatus,
                     available,
+                    availablePorts,
+                    Math.max(totalPorts - availablePorts, 0),
                     lastUpdated == null ? null : lastUpdated.toString(),
                     location,
                     evseDtos,

@@ -47,6 +47,8 @@ type OcpiCharger {
   chargerName: String
   status: String!
   available: Boolean!
+  availablePorts: Int!
+  busyPorts: Int!
   lastUpdated: String
   location: OcpiLocation
   evses: [OcpiEvse!]!
