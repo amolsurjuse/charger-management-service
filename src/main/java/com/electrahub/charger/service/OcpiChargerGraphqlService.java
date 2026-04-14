@@ -38,17 +38,20 @@ public class OcpiChargerGraphqlService {
     private final ObjectProvider<Rest5Client> restClientProvider;
     private final ObjectMapper objectMapper;
     private final ChargerSessionLookupService chargerSessionLookupService;
+    private final BillingTariffClient billingTariffClient;
 
     public OcpiChargerGraphqlService(
             ElasticsearchProperties elasticsearchProperties,
             ObjectProvider<Rest5Client> restClientProvider,
             ObjectMapper objectMapper,
-            ChargerSessionLookupService chargerSessionLookupService
+            ChargerSessionLookupService chargerSessionLookupService,
+            BillingTariffClient billingTariffClient
     ) {
         this.elasticsearchProperties = elasticsearchProperties;
         this.restClientProvider = restClientProvider;
         this.objectMapper = objectMapper;
         this.chargerSessionLookupService = chargerSessionLookupService;
+        this.billingTariffClient = billingTariffClient;
     }
 
     public List<OcpiChargerGraphqlDto> listChargers(
@@ -89,6 +92,7 @@ public class OcpiChargerGraphqlService {
         }
 
         List<OcpiChargerGraphqlDto> chargers = toChargerDtos(pageChargerIds, connectorRows);
+        chargers = enrichWithTariffDetails(chargers);
         if (chargers.isEmpty() || !selectionRequiresCurrentSession(selectionSet)) {
             return chargers;
         }
@@ -508,6 +512,8 @@ public class OcpiChargerGraphqlService {
                 charger.chargerName(),
                 charger.status(),
                 charger.available(),
+                charger.availablePorts(),
+                charger.busyPorts(),
                 charger.lastUpdated(),
                 charger.location(),
                 charger.evses(),
@@ -649,6 +655,122 @@ public class OcpiChargerGraphqlService {
         return "AVAILABLE".equalsIgnoreCase(status);
     }
 
+    private List<OcpiChargerGraphqlDto> enrichWithTariffDetails(List<OcpiChargerGraphqlDto> chargers) {
+        // Collect all unique tariff IDs
+        Set<String> allTariffIds = new LinkedHashSet<>();
+        for (OcpiChargerGraphqlDto charger : chargers) {
+            if (charger.pricing() != null) {
+                allTariffIds.addAll(charger.pricing().tariffIds());
+            }
+            for (OcpiEvseGraphqlDto evse : charger.evses()) {
+                for (OcpiConnectorGraphqlDto connector : evse.connectors()) {
+                    allTariffIds.addAll(connector.tariffIds());
+                }
+            }
+        }
+
+        if (allTariffIds.isEmpty()) return chargers;
+
+        Map<String, BillingTariffClient.TariffDetailDto> resolved = billingTariffClient.resolveTariffs(allTariffIds);
+        if (resolved.isEmpty()) return chargers;
+
+        return chargers.stream().map(charger -> enrichCharger(charger, resolved)).toList();
+    }
+
+    private OcpiChargerGraphqlDto enrichCharger(
+            OcpiChargerGraphqlDto charger,
+            Map<String, BillingTariffClient.TariffDetailDto> resolvedTariffs
+    ) {
+        // Enrich pricing tariffs
+        OcpiPricingGraphqlDto enrichedPricing = charger.pricing() != null
+                ? new OcpiPricingGraphqlDto(
+                        charger.pricing().tariffIds(),
+                        charger.pricing().tariffIds().stream()
+                                .map(resolvedTariffs::get)
+                                .filter(Objects::nonNull)
+                                .map(this::tariffDetailToDto)
+                                .toList()
+                )
+                : new OcpiPricingGraphqlDto(List.of(), List.of());
+
+        // Enrich evse connectors
+        List<OcpiEvseGraphqlDto> enrichedEvses = charger.evses().stream()
+                .map(evse -> enrichEvse(evse, resolvedTariffs))
+                .toList();
+
+        return new OcpiChargerGraphqlDto(
+                charger.countryCode(),
+                charger.partyId(),
+                charger.chargerId(),
+                charger.chargerName(),
+                charger.status(),
+                charger.available(),
+                charger.availablePorts(),
+                charger.busyPorts(),
+                charger.lastUpdated(),
+                charger.location(),
+                enrichedEvses,
+                enrichedPricing,
+                charger.currentSession()
+        );
+    }
+
+    private OcpiEvseGraphqlDto enrichEvse(
+            OcpiEvseGraphqlDto evse,
+            Map<String, BillingTariffClient.TariffDetailDto> resolvedTariffs
+    ) {
+        List<OcpiConnectorGraphqlDto> enrichedConnectors = evse.connectors().stream()
+                .map(connector -> enrichConnector(connector, resolvedTariffs))
+                .toList();
+
+        return new OcpiEvseGraphqlDto(
+                evse.id(),
+                evse.uid(),
+                evse.zone(),
+                evse.capabilities(),
+                evse.status(),
+                enrichedConnectors
+        );
+    }
+
+    private OcpiConnectorGraphqlDto enrichConnector(
+            OcpiConnectorGraphqlDto connector,
+            Map<String, BillingTariffClient.TariffDetailDto> resolvedTariffs
+    ) {
+        List<OcpiTariffGraphqlDto> tariffs = connector.tariffIds().stream()
+                .map(resolvedTariffs::get)
+                .filter(Objects::nonNull)
+                .map(this::tariffDetailToDto)
+                .toList();
+
+        return new OcpiConnectorGraphqlDto(
+                connector.id(),
+                connector.standard(),
+                connector.format(),
+                connector.powerType(),
+                connector.maxPowerKw(),
+                connector.tariffIds(),
+                tariffs,
+                connector.status(),
+                connector.available()
+        );
+    }
+
+    private OcpiTariffGraphqlDto tariffDetailToDto(BillingTariffClient.TariffDetailDto detail) {
+        return new OcpiTariffGraphqlDto(
+                detail.tariffId(),
+                detail.name(),
+                detail.description(),
+                detail.currency(),
+                detail.energyPrice() != null ? detail.energyPrice().doubleValue() : null,
+                detail.timePrice() != null ? detail.timePrice().doubleValue() : null,
+                detail.parkingPrice() != null ? detail.parkingPrice().doubleValue() : null,
+                detail.flatFee() != null ? detail.flatFee().doubleValue() : null,
+                detail.minPrice() != null ? detail.minPrice().doubleValue() : null,
+                detail.maxPrice() != null ? detail.maxPrice().doubleValue() : null
+        );
+    }
+
     public record OcpiChargerFilter(
             String countryCode,
             String partyId,
@@ -675,6 +797,8 @@ public class OcpiChargerGraphqlService {
             String chargerName,
             String status,
             boolean available,
+            int availablePorts,
+            int busyPorts,
             String lastUpdated,
             OcpiLocationGraphqlDto location,
             List<OcpiEvseGraphqlDto> evses,
@@ -716,13 +840,29 @@ public class OcpiChargerGraphqlService {
             String powerType,
             BigDecimal maxPowerKw,
             List<String> tariffIds,
+            List<OcpiTariffGraphqlDto> tariffs,
             String status,
             boolean available
     ) {
     }
 
+    public record OcpiTariffGraphqlDto(
+            String tariffId,
+            String name,
+            String description,
+            String currency,
+            Double energyPrice,
+            Double timePrice,
+            Double parkingPrice,
+            Double flatFee,
+            Double minPrice,
+            Double maxPrice
+    ) {
+    }
+
     public record OcpiPricingGraphqlDto(
-            List<String> tariffIds
+            List<String> tariffIds,
+            List<OcpiTariffGraphqlDto> tariffs
     ) {
     }
 
@@ -818,6 +958,14 @@ public class OcpiChargerGraphqlService {
 
             String chargerStatus = normalizeStatus(statuses);
             boolean available = isAvailableStatus(chargerStatus);
+            int availablePorts = 0;
+            int totalPorts = 0;
+            for (EvseAccumulator evseAccumulator : evses.values()) {
+                totalPorts += evseAccumulator.connectors.size();
+                availablePorts += evseAccumulator.connectors.values().stream()
+                        .mapToInt(connector -> connector.available() ? 1 : 0)
+                        .sum();
+            }
 
             return new OcpiChargerGraphqlDto(
                     countryCode,
@@ -826,10 +974,12 @@ public class OcpiChargerGraphqlService {
                     chargerName,
                     chargerStatus,
                     available,
+                    availablePorts,
+                    Math.max(totalPorts - availablePorts, 0),
                     lastUpdated == null ? null : lastUpdated.toString(),
                     location,
                     evseDtos,
-                    new OcpiPricingGraphqlDto(pricingTariffIds.stream().toList()),
+                    new OcpiPricingGraphqlDto(pricingTariffIds.stream().toList(), List.of()),
                     null
             );
         }
@@ -878,6 +1028,7 @@ public class OcpiChargerGraphqlService {
                     powerType,
                     maxPowerKw,
                     tariffIds,
+                    List.of(),
                     normalizedStatus,
                     isAvailableStatus(normalizedStatus)
             ));
