@@ -70,6 +70,9 @@ app:
     session:
       enabled: ${SESSION_SERVICE_ENABLED:true}
       url: ${SESSION_SERVICE_URL:http://session-service:8083}
+    billing:
+      enabled: ${BILLING_SERVICE_ENABLED:true}
+      url: ${BILLING_SERVICE_URL:http://billing-service:8085}
 
 management:
   endpoints:
