@@ -32,8 +32,8 @@ public class ChargerAdminRepository {
      * @param jdbcTemplate input consumed by ChargerAdminRepository.
      */
     public ChargerAdminRepository(NamedParameterJdbcTemplate jdbcTemplate) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminRepository#ChargerAdminRepository");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminRepository#ChargerAdminRepository with debug context");
+        LOGGER.info(" Entering ChargerAdminRepository#ChargerAdminRepository");
+        LOGGER.debug(" Entering ChargerAdminRepository#ChargerAdminRepository with debug context");
         this.jdbcTemplate = jdbcTemplate;
     }
 

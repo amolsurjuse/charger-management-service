@@ -35,8 +35,8 @@ public class ChargerAdminService {
             ChargerAdminRepository chargerAdminRepository,
             OcpiConnectorElasticsearchPublisher ocpiConnectorElasticsearchPublisher
     ) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminService#ChargerAdminService with debug context");
+        LOGGER.info(" Entering ChargerAdminService#ChargerAdminService");
+        LOGGER.debug(" Entering ChargerAdminService#ChargerAdminService with debug context");
         this.chargerAdminRepository = chargerAdminRepository;
         this.ocpiConnectorElasticsearchPublisher = ocpiConnectorElasticsearchPublisher;
     }

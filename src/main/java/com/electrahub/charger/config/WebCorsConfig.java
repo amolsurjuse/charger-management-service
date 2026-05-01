@@ -21,8 +21,8 @@ public class WebCorsConfig implements WebMvcConfigurer {
      * @param corsProperties input consumed by WebCorsConfig.
      */
     public WebCorsConfig(CorsProperties corsProperties) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering WebCorsConfig#WebCorsConfig");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering WebCorsConfig#WebCorsConfig with debug context");
+        LOGGER.info(" Entering WebCorsConfig#WebCorsConfig");
+        LOGGER.debug(" Entering WebCorsConfig#WebCorsConfig with debug context");
         this.corsProperties = corsProperties;
     }
 

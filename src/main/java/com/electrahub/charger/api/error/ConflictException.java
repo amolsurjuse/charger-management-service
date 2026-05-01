@@ -15,7 +15,7 @@ public class ConflictException extends RuntimeException {
      */
     public ConflictException(String message) {
         super(message);
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ConflictException#ConflictException");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ConflictException#ConflictException with debug context");
+        LOGGER.info(" Entering ConflictException#ConflictException");
+        LOGGER.debug(" Entering ConflictException#ConflictException with debug context");
     }
 }

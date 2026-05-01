@@ -27,8 +27,8 @@ public final class ChargerAdminDtos {
      * enforces component-specific rules in `com.electrahub.charger.api.dto`.
      */
     private ChargerAdminDtos() {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminDtos#ChargerAdminDtos");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminDtos#ChargerAdminDtos with debug context");
+        LOGGER.info(" Entering ChargerAdminDtos#ChargerAdminDtos");
+        LOGGER.debug(" Entering ChargerAdminDtos#ChargerAdminDtos with debug context");
     }
 
     public enum OcppVersion {

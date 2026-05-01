@@ -38,8 +38,8 @@ public class ChargerAdminController {
      * @param chargerAdminService input consumed by ChargerAdminController.
      */
     public ChargerAdminController(ChargerAdminService chargerAdminService) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerAdminController#ChargerAdminController");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerAdminController#ChargerAdminController with debug context");
+        LOGGER.info(" Entering ChargerAdminController#ChargerAdminController");
+        LOGGER.debug(" Entering ChargerAdminController#ChargerAdminController with debug context");
         this.chargerAdminService = chargerAdminService;
     }
 

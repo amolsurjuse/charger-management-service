@@ -21,8 +21,8 @@ public class HealthController {
      */
     @GetMapping("/healthz")
     public Map<String, String> healthz() {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering HealthController#healthz");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering HealthController#healthz with debug context");
+        LOGGER.info(" Entering HealthController#healthz");
+        LOGGER.debug(" Entering HealthController#healthz with debug context");
         return Map.of("status", "ok");
     }
 

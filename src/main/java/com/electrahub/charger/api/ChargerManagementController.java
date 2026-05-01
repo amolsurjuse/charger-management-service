@@ -39,8 +39,8 @@ public class ChargerManagementController {
      * @param chargerManagementService input consumed by ChargerManagementController.
      */
     public ChargerManagementController(ChargerManagementService chargerManagementService) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerManagementController#ChargerManagementController");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerManagementController#ChargerManagementController with debug context");
+        LOGGER.info(" Entering ChargerManagementController#ChargerManagementController");
+        LOGGER.debug(" Entering ChargerManagementController#ChargerManagementController with debug context");
         this.chargerManagementService = chargerManagementService;
     }
 

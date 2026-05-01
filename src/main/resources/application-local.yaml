@@ -1,0 +1,39 @@
+server:
+  port: ${SERVER_PORT:8086}
+
+spring:
+  datasource:
+    url: ${LOCAL_ENV_CHARGER_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:58318/charger_management_db}
+    username: ${LOCAL_ENV_CHARGER_DATASOURCE_USERNAME:postgres}
+    password: ${LOCAL_ENV_CHARGER_DATASOURCE_PASSWORD:postgres}
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: public
+    liquibase-schema: public
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  elasticsearch:
+    uris: ${LOCAL_ELASTICSEARCH_URIS:http://127.0.0.1:9200}
+
+app:
+  elasticsearch:
+    enabled: ${LOCAL_CHARGER_ELASTICSEARCH_ENABLED:true}
+  services:
+    session:
+      enabled: ${LOCAL_SESSION_SERVICE_ENABLED:true}
+      url: ${LOCAL_SESSION_SERVICE_URL:http://127.0.0.1:8083}
+    billing:
+      enabled: ${LOCAL_BILLING_SERVICE_ENABLED:true}
+      url: ${LOCAL_BILLING_SERVICE_URL:http://127.0.0.1:8085}
+
+logging:
+  level:
+    root: INFO
+    com.electrahub.charger: DEBUG

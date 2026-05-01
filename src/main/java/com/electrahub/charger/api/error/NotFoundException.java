@@ -15,7 +15,7 @@ public class NotFoundException extends RuntimeException {
      */
     public NotFoundException(String message) {
         super(message);
-        LOGGER.info("CODEx_ENTRY_LOG: Entering NotFoundException#NotFoundException");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering NotFoundException#NotFoundException with debug context");
+        LOGGER.info(" Entering NotFoundException#NotFoundException");
+        LOGGER.debug(" Entering NotFoundException#NotFoundException with debug context");
     }
 }
