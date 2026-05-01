@@ -18,8 +18,8 @@ public class ChargerManagementServiceApplication {
      * @param args input consumed by main.
      */
     public static void main(String[] args) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerManagementServiceApplication#main");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerManagementServiceApplication#main with debug context");
+        LOGGER.info(" Entering ChargerManagementServiceApplication#main");
+        LOGGER.debug(" Entering ChargerManagementServiceApplication#main with debug context");
         SpringApplication.run(ChargerManagementServiceApplication.class, args);
     }
 }

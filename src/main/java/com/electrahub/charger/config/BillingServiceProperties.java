@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class BillingServiceProperties {
 
     private boolean enabled = true;
-    private String url = "http://billing-service:8084";
+    private String url = "http://billing-service:8085";
 
     public boolean isEnabled() {
         return enabled;

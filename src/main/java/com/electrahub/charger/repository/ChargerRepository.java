@@ -43,8 +43,8 @@ public class ChargerRepository {
      * @param objectMapper input consumed by ChargerRepository.
      */
     public ChargerRepository(NamedParameterJdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerRepository#ChargerRepository");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerRepository#ChargerRepository with debug context");
+        LOGGER.info(" Entering ChargerRepository#ChargerRepository");
+        LOGGER.debug(" Entering ChargerRepository#ChargerRepository with debug context");
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
     }

@@ -27,8 +27,8 @@ public class ChargerManagementService {
      * @param chargerRepository input consumed by ChargerManagementService.
      */
     public ChargerManagementService(ChargerRepository chargerRepository) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering ChargerManagementService#ChargerManagementService");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering ChargerManagementService#ChargerManagementService with debug context");
+        LOGGER.info(" Entering ChargerManagementService#ChargerManagementService");
+        LOGGER.debug(" Entering ChargerManagementService#ChargerManagementService with debug context");
         this.chargerRepository = chargerRepository;
     }
 

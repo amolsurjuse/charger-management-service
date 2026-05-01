@@ -29,8 +29,8 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(NotFoundException ex) {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering RestExceptionHandler#handleNotFound");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering RestExceptionHandler#handleNotFound with debug context");
+        LOGGER.info(" Entering RestExceptionHandler#handleNotFound");
+        LOGGER.debug(" Entering RestExceptionHandler#handleNotFound with debug context");
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError("NOT_FOUND", ex.getMessage(), OffsetDateTime.now(), List.of()));
     }

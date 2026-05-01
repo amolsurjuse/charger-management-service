@@ -84,15 +84,14 @@ public class BillingTariffClient {
                     cache.put(trimmed, Optional.empty());
                 }
             } catch (RestClientException | IllegalArgumentException ex) {
-                log.debug("Failed to resolve tariff {}: {}", trimmed, ex.getMessage());
-                cache.put(trimmed, Optional.empty());
+                log.warn("Failed to resolve tariff {} from billing-service: {}", trimmed, ex.getMessage());
             }
         }
         return result;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record BillingTariffResponse(
+    public record BillingTariffResponse(
             UUID id,
             String name,
             String description,

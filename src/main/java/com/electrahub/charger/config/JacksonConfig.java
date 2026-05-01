@@ -21,8 +21,8 @@ public class JacksonConfig {
      */
     @Bean
     ObjectMapper objectMapper() {
-        LOGGER.info("CODEx_ENTRY_LOG: Entering JacksonConfig#objectMapper");
-        LOGGER.debug("CODEx_ENTRY_LOG: Entering JacksonConfig#objectMapper with debug context");
+        LOGGER.info(" Entering JacksonConfig#objectMapper");
+        LOGGER.debug(" Entering JacksonConfig#objectMapper with debug context");
         return JsonMapper.builder()
                 .findAndAddModules()
                 .build();
