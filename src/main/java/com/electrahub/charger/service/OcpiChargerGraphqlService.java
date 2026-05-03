@@ -93,7 +93,7 @@ public class OcpiChargerGraphqlService {
 
         List<OcpiChargerGraphqlDto> chargers = toChargerDtos(pageChargerIds, connectorRows);
         chargers = enrichWithTariffDetails(chargers);
-        if (chargers.isEmpty() || !selectionRequiresCurrentSession(selectionSet)) {
+        if (chargers.isEmpty() || !selectionRequiresActiveSessionOverlay(selectionSet)) {
             return chargers;
         }
 
@@ -486,10 +486,16 @@ public class OcpiChargerGraphqlService {
                 .toList();
     }
 
-    private boolean selectionRequiresCurrentSession(DataFetchingFieldSelectionSet selectionSet) {
+    private boolean selectionRequiresActiveSessionOverlay(DataFetchingFieldSelectionSet selectionSet) {
         return selectionSet.contains("currentSession")
                 || selectionSet.contains("currentSession/*")
-                || selectionSet.contains("currentSession/**");
+                || selectionSet.contains("currentSession/**")
+                || selectionSet.contains("status")
+                || selectionSet.contains("available")
+                || selectionSet.contains("availablePorts")
+                || selectionSet.contains("busyPorts")
+                || selectionSet.contains("evses/*")
+                || selectionSet.contains("evses/**");
     }
 
     private OcpiChargerGraphqlDto withCurrentSession(
