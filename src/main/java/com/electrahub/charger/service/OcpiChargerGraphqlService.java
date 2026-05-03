@@ -505,20 +505,89 @@ public class OcpiChargerGraphqlService {
                 activeSession.startedAt()
         );
 
+        List<OcpiEvseGraphqlDto> evses = activeSession == null
+                ? charger.evses()
+                : overlayActiveSession(charger.evses(), activeSession);
+        int totalPorts = evses.stream().mapToInt(evse -> evse.connectors().size()).sum();
+        int availablePorts = (int) evses.stream()
+                .flatMap(evse -> evse.connectors().stream())
+                .filter(OcpiConnectorGraphqlDto::available)
+                .count();
+        int busyPorts = Math.max(0, totalPorts - availablePorts);
+        String status = activeSession == null ? charger.status() : "CHARGING";
+
         return new OcpiChargerGraphqlDto(
                 charger.countryCode(),
                 charger.partyId(),
                 charger.chargerId(),
                 charger.chargerName(),
-                charger.status(),
-                charger.available(),
-                charger.availablePorts(),
-                charger.busyPorts(),
+                status,
+                availablePorts > 0,
+                availablePorts,
+                busyPorts,
                 charger.lastUpdated(),
                 charger.location(),
-                charger.evses(),
+                evses,
                 charger.pricing(),
                 currentSession
+        );
+    }
+
+    private List<OcpiEvseGraphqlDto> overlayActiveSession(
+            List<OcpiEvseGraphqlDto> evses,
+            ChargerSessionLookupService.ActiveSessionDto activeSession
+    ) {
+        String activeConnectorRef = normalizeText(activeSession.connectorRef());
+        boolean hasConnectorRef = !activeConnectorRef.isBlank();
+        boolean matched = evses.stream()
+                .flatMap(evse -> evse.connectors().stream())
+                .anyMatch(connector -> hasConnectorRef && activeConnectorRef.equalsIgnoreCase(normalizeText(connector.id())));
+
+        boolean[] fallbackUsed = {matched};
+        return evses.stream()
+                .map(evse -> overlayActiveSession(evse, activeConnectorRef, fallbackUsed))
+                .toList();
+    }
+
+    private OcpiEvseGraphqlDto overlayActiveSession(
+            OcpiEvseGraphqlDto evse,
+            String activeConnectorRef,
+            boolean[] fallbackUsed
+    ) {
+        List<OcpiConnectorGraphqlDto> connectors = evse.connectors();
+        List<OcpiConnectorGraphqlDto> overlaidConnectors = connectors.stream()
+                .map(connector -> {
+                    boolean matches = !activeConnectorRef.isBlank()
+                            && activeConnectorRef.equalsIgnoreCase(normalizeText(connector.id()));
+                    boolean fallback = !fallbackUsed[0];
+                    if (!matches && !fallback) {
+                        return connector;
+                    }
+                    fallbackUsed[0] = true;
+                    return new OcpiConnectorGraphqlDto(
+                            connector.id(),
+                            connector.standard(),
+                            connector.format(),
+                            connector.powerType(),
+                            connector.maxPowerKw(),
+                            connector.tariffIds(),
+                            connector.tariffs(),
+                            "CHARGING",
+                            false
+                    );
+                })
+                .toList();
+
+        String evseStatus = overlaidConnectors.stream().anyMatch(connector -> "CHARGING".equalsIgnoreCase(connector.status()))
+                ? "CHARGING"
+                : evse.status();
+        return new OcpiEvseGraphqlDto(
+                evse.id(),
+                evse.uid(),
+                evse.zone(),
+                evse.capabilities(),
+                evseStatus,
+                overlaidConnectors
         );
     }
 
@@ -624,14 +693,14 @@ public class OcpiChargerGraphqlService {
         if (statuses.isEmpty()) {
             return "UNKNOWN";
         }
-        if (statuses.contains("AVAILABLE")) {
-            return "AVAILABLE";
-        }
         if (statuses.contains("CHARGING")) {
             return "CHARGING";
         }
         if (statuses.contains("OCCUPIED")) {
             return "OCCUPIED";
+        }
+        if (statuses.contains("AVAILABLE")) {
+            return "AVAILABLE";
         }
         if (statuses.contains("RESERVED")) {
             return "RESERVED";

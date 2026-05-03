@@ -96,7 +96,8 @@ public class ChargerSessionLookupService {
                     sessionId,
                     summary.driverId() == null ? null : summary.driverId().toString(),
                     summary.status(),
-                    summary.startedAt() == null ? null : summary.startedAt().toString()
+                    summary.startedAt() == null ? null : summary.startedAt().toString(),
+                    null
             ));
         } catch (RestClientException ex) {
             log.debug("Failed to lookup {} charging session for station {}", status, stationId, ex);
@@ -117,19 +118,23 @@ public class ChargerSessionLookupService {
 
     private Map<String, ActiveSessionDto> fetchActiveSessionsByStringStationId(LinkedHashSet<String> chargerIds) {
         try {
-            LegacyActiveSession[] sessions = restClient.get()
-                    .uri("/api/v1/sessions/active")
+            ChargerActiveSession[] sessions = restClient.get()
+                    .uri(uriBuilder -> {
+                        var builder = uriBuilder.path("/api/v1/sessions/internal/active-by-chargers");
+                        chargerIds.forEach(chargerId -> builder.queryParam("chargerIds", chargerId));
+                        return builder.build();
+                    })
                     .retrieve()
-                    .body(LegacyActiveSession[].class);
+                    .body(ChargerActiveSession[].class);
 
             if (sessions == null || sessions.length == 0) {
                 return Map.of();
             }
 
             Map<String, ActiveSessionDto> sessionsByChargerId = new LinkedHashMap<>();
-            for (LegacyActiveSession session : sessions) {
-                String stationId = trimToNull(session.stationId());
-                if (stationId == null || !chargerIds.contains(stationId)) {
+            for (ChargerActiveSession session : sessions) {
+                String chargerId = trimToNull(session.chargerId());
+                if (chargerId == null || !chargerIds.contains(chargerId)) {
                     continue;
                 }
 
@@ -148,18 +153,19 @@ public class ChargerSessionLookupService {
                 }
 
                 sessionsByChargerId.putIfAbsent(
-                        stationId,
+                        chargerId,
                         new ActiveSessionDto(
                                 sessionId,
                                 userId,
                                 trimToNull(session.status()),
-                                trimToNull(session.startedAt())
+                                trimToNull(session.startedAt()),
+                                trimToNull(session.connectorRef())
                         )
                 );
             }
             return sessionsByChargerId;
         } catch (RestClientException ex) {
-            log.debug("Failed to lookup active charging sessions via /api/v1/sessions/active fallback", ex);
+            log.debug("Failed to lookup active charging sessions by charger ids", ex);
             return Map.of();
         }
     }
@@ -189,7 +195,8 @@ public class ChargerSessionLookupService {
             String id,
             String userId,
             String status,
-            String startedAt
+            String startedAt,
+            String connectorRef
     ) {
     }
 
@@ -207,9 +214,10 @@ public class ChargerSessionLookupService {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record LegacyActiveSession(
+    private record ChargerActiveSession(
             String id,
-            String stationId,
+            String chargerId,
+            String connectorRef,
             String status,
             String startedAt,
             String userId,
